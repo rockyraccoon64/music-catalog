@@ -45,8 +45,9 @@ CREATE TABLE Albums (
 CREATE TABLE Songs (
 	ID INT NOT NULL AUTO_INCREMENT,
     Name NVARCHAR(100) NOT NULL,
-    Album INT REFERENCES Albums (ID),
-    TrackNo INT,
+    Album INT NOT NULL REFERENCES Albums (ID),
+    TrackNo INT NOT NULL,
+    UNIQUE (Album, TrackNo),
     PRIMARY KEY (ID)
 );
 
@@ -174,19 +175,13 @@ INSERT INTO Albums (Band, Name, ReleaseDate, Genre) VALUES
 (@byrds, N'The Notorious Byrd Brothers', '1968-01-15', @psych),
 (@byrds, N'Sweetheart of the Rodeo', '1968-07-30', @countryrock),
 (@byrds, N'Dr. Byrds & Mr. Hyde', '1969-03-05', @countryrock),
-(@byrds, N'Ballad of Easy Rider', '1969-11-10', @countryrock),
-(@byrds, N'(Untitled)', '1970-09-14', @countryrock),
-(@byrds, N'Byrdmaniax', '1971-06-23', @countryrock),
-(@byrds, N'Farther Along', '1971-11-17', @countryrock),
 (@byrds, N'Byrds', '1973-03-07', @rock),
 
 (@band, N'Music from Big Pink', '1968-07-01', @roots),
 (@band, N'The Band', '1969-09-22', @roots),
 (@band, N'Stage Fright', '1970-08-17', @roots),
 (@band, N'Cahoots', '1971-09-15', @roots),
-(@band, N'Moondog Matinee', '1973-10-15', @rocknroll),
 (@band, N'Northern Lights - Southern Cross', '1975-11-01', @roots),
-(@band, N'Islands', '1977-03-15', @rock),
 
 (@ccr, N'Creedence Clearwater Revival', '1968-05-28', @psych),
 (@ccr, N'Bayou Country', '1969-01-05', @swamp),
@@ -194,7 +189,6 @@ INSERT INTO Albums (Band, Name, ReleaseDate, Genre) VALUES
 (@ccr, N'Willy and the Poor Boys', '1969-11-02', @roots),
 (@ccr, N'Cosmo''s Factory', '1970-07-16', @roots),
 (@ccr, N'Pendulum', '1970-12-09', @roots),
-(@ccr, N'Mardi Gras', '1972-04-11', @countryrock),
 
 (@kinks, N'Face to Face', '1966-10-28', @baroque),
 (@kinks, N'Something Else by the Kinks', '1967-09-15', @baroque),
@@ -211,6 +205,24 @@ SELECT @beatles_hard:=ID FROM Albums
 WHERE Name = N'A Hard Day''s Night';
 SELECT @beatles_sale:=ID FROM Albums
 WHERE Name = N'Beatles For Sale';
+SELECT @beatles_help:=ID FROM Albums
+WHERE Name = N'Help!';
+SELECT @beatles_soul:=ID FROM Albums
+WHERE Name = N'Rubber Soul';
+SELECT @beatles_revolver:=ID FROM Albums
+WHERE Name = N'Revolver';
+SELECT @beatles_pepper:=ID FROM Albums
+WHERE Name = N'Sgt. Pepper''s Lonely Hearts Club Band';
+SELECT @beatles_tour:=ID FROM Albums
+WHERE Name = N'Magical Mystery Tour';
+SELECT @beatles_white:=ID FROM Albums
+WHERE Name = N'The Beatles';
+SELECT @beatles_sub:=ID From Albums
+WHERE Name = N'Yellow Submarine';
+SELECT @beatles_abbey:=ID From Albums
+WHERE Name = N'Abbey Road';
+SELECT @beatles_let:=ID From Albums
+WHERE Name = N'Let It Be';
 
 INSERT INTO Songs (Album, Name, TrackNo) VALUES
 (@beatles_please, N'I Saw Her Standing There', 1),
@@ -270,4 +282,153 @@ INSERT INTO Songs (Album, Name, TrackNo) VALUES
 (@beatles_sale, N'Every Little Thing', 11),
 (@beatles_sale, N'I Don''t Want to Spoil the Party', 12),
 (@beatles_sale, N'What You''re Doing', 13),
-(@beatles_sale, N'Everybody''s Trying to Be My Baby', 14);
+(@beatles_sale, N'Everybody''s Trying to Be My Baby', 14),
+
+(@beatles_help, N'Help!', 1),
+(@beatles_help, N'The Night Before', 2),
+(@beatles_help, N'You''ve Got to Hide Your Love Away', 3),
+(@beatles_help, N'I Need You', 4),
+(@beatles_help, N'Another Girl', 5),
+(@beatles_help, N'You''re Going to Lose That Girl', 6),
+(@beatles_help, N'Ticket to Ride', 7),
+(@beatles_help, N'Act Naturally', 8),
+(@beatles_help, N'It''s Only Love', 9),
+(@beatles_help, N'You Like Me Too Much', 10),
+(@beatles_help, N'Tell Me What You See', 11),
+(@beatles_help, N'I''ve Just Seen a Face', 12),
+(@beatles_help, N'Yesterday', 13),
+(@beatles_help, N'Dizzy Miss Lizzy', 14),
+
+(@beatles_soul, N'Drive My Car', 1),
+(@beatles_soul, N'Norwegian Wood (This Bird Has Flown', 2),
+(@beatles_soul, N'You Won''t See Me', 3),
+(@beatles_soul, N'Nowhere Man', 4),
+(@beatles_soul, N'Think for Yourself', 5),
+(@beatles_soul, N'The Word', 6),
+(@beatles_soul, N'Michelle', 7),
+(@beatles_soul, N'What Goes On', 8),
+(@beatles_soul, N'Girl', 9),
+(@beatles_soul, N'I''m Looking Through You', 10),
+(@beatles_soul, N'In My Life', 11),
+(@beatles_soul, N'Wait', 12),
+(@beatles_soul, N'If I Needed Someone', 13),
+(@beatles_soul, N'Run for Your Life', 14),
+
+(@beatles_revolver, N'Taxman', 1),
+(@beatles_revolver, N'Eleanor Rigby', 2),
+(@beatles_revolver, N'I''m Only Sleeping', 3),
+(@beatles_revolver, N'Love You To', 4),
+(@beatles_revolver, N'Here, There and Everywhere', 5),
+(@beatles_revolver, N'Yellow Submarine', 6),
+(@beatles_revolver, N'She Said She Said', 7),
+(@beatles_revolver, N'Good Day Sunshine', 8),
+(@beatles_revolver, N'And Your Bird Can Sing', 9),
+(@beatles_revolver, N'For No One', 10),
+(@beatles_revolver, N'Doctor Robert', 11),
+(@beatles_revolver, N'I Want to Tell You', 12),
+(@beatles_revolver, N'Got to Get You into My Life', 13),
+(@beatles_revolver, N'Tomorrow Never Knows', 14),
+
+(@beatles_pepper, N'Sgt. Pepper''s Lonely Hearts Club Band', 1),
+(@beatles_pepper, N'With a Little Help from My Friends', 2),
+(@beatles_pepper, N'Lucy in the Sky with Diamonds', 3),
+(@beatles_pepper, N'Getting Better', 4),
+(@beatles_pepper, N'Fixing a Hole', 5),
+(@beatles_pepper, N'She''s Leaving Home', 6),
+(@beatles_pepper, N'Being for the Benefit of Mr. Kite!', 7),
+(@beatles_pepper, N'Within You Without You', 8),
+(@beatles_pepper, N'When I''m Sixty-Four', 9),
+(@beatles_pepper, N'Lonely Rita', 10),
+(@beatles_pepper, N'Good Morning Good Morning', 11),
+(@beatles_pepper, N'Sgt. Pepper''s Lonely Hearts Club Band (Reprise)', 12),
+(@beatles_pepper, N'A Day in the Life', 13),
+
+(@beatles_tour, N'Magical Mystery Tour', 1),
+(@beatles_tour, N'The Fool on the Hill', 2),
+(@beatles_tour, N'Flying', 3),
+(@beatles_tour, N'Blue Jay Way', 4),
+(@beatles_tour, N'Your Mother Should Know', 5),
+(@beatles_tour, N'I Am the Walrus', 6),
+(@beatles_tour, N'Hello, Goodbye', 7),
+(@beatles_tour, N'Strawberry Fields Forever', 8),
+(@beatles_tour, N'Penny Lane', 9),
+(@beatles_tour, N'Baby, You''re a Rich Man', 10),
+(@beatles_tour, N'All You Need Is Love', 11),
+
+(@beatles_white, N'Back in the U.S.S.R.', 1),
+(@beatles_white, N'Dear Prudence', 2),
+(@beatles_white, N'Glass Onion', 3),
+(@beatles_white, N'Ob-La-Di, Ob-La-Da', 4),
+(@beatles_white, N'Wild Honey Pie', 5),
+(@beatles_white, N'The Continuing Story of Bungalow Bill', 6),
+(@beatles_white, N'While My Guitar Gently Weeps', 7),
+(@beatles_white, N'Happiness is a Warm Gun', 8),
+(@beatles_white, N'Martha My Dear', 9),
+(@beatles_white, N'I''m So Tired', 10),
+(@beatles_white, N'Blackbird', 11),
+(@beatles_white, N'Piggies', 12),
+(@beatles_white, N'Rocky Raccoon', 13),
+(@beatles_white, N'Don''t Pass Me By', 14),
+(@beatles_white, N'Why Don''t We Do It in the Road?', 15),
+(@beatles_white, N'I Will', 16),
+(@beatles_white, N'Julia', 17),
+(@beatles_white, N'Birthday', 18),
+(@beatles_white, N'Yer Blues', 19),
+(@beatles_white, N'Mother Nature''s Son', 20),
+(@beatles_white, N'Everybody''s Got Something to Hide Except Me and My Monkey', 21),
+(@beatles_white, N'Sexy Sadie', 22),
+(@beatles_white, N'Helter Skelter', 23),
+(@beatles_white, N'Long, Long, Long', 24),
+(@beatles_white, N'Revolution 1', 25),
+(@beatles_white, N'Honey Pie', 26),
+(@beatles_white, N'Savoy Truffle', 27),
+(@beatles_white, N'Cry Baby Cry', 28),
+(@beatles_white, N'Revolution 9', 29),
+(@beatles_white, N'Good Night', 30),
+
+(@beatles_sub, N'Yellow Submarine', 1),
+(@beatles_sub, N'Only a Northern Song', 2),
+(@beatles_sub, N'All Together Now', 3),
+(@beatles_sub, N'Hey Bulldog', 4),
+(@beatles_sub, N'It''s All Too Much', 5),
+(@beatles_sub, N'All You Need Is Love', 6),
+(@beatles_sub, N'Pepperland', 7),
+(@beatles_sub, N'Sea of Time', 8),
+(@beatles_sub, N'Sea of Holes', 9),
+(@beatles_sub, N'Sea of Monsters', 10),
+(@beatles_sub, N'March of the Meanies', 11),
+(@beatles_sub, N'Pepperland Laid Waste', 12),
+(@beatles_sub, N'Yellow Submarine in Pepperland', 13),
+
+(@beatles_abbey, N'Come Together', 1),
+(@beatles_abbey, N'Something', 2),
+(@beatles_abbey, N'Maxwell''s Silver Hammer', 3),
+(@beatles_abbey, N'Oh! Darling', 4),
+(@beatles_abbey, N'Octopus''s Garden', 5),
+(@beatles_abbey, N'I Want You (She''s So Heavy)', 6),
+(@beatles_abbey, N'Here Comes the Sun', 7),
+(@beatles_abbey, N'Because', 8),
+(@beatles_abbey, N'You Never Give Me Your Money', 9),
+(@beatles_abbey, N'Sun King', 10),
+(@beatles_abbey, N'Mean Mr. Mustard', 11),
+(@beatles_abbey, N'Polythene Pam', 12),
+(@beatles_abbey, N'She Came In Through the Bathroom Window', 13),
+(@beatles_abbey, N'Golden Slumbers', 14),
+(@beatles_abbey, N'Carry That Weight', 15),
+(@beatles_abbey, N'The End', 16),
+(@beatles_abbey, N'Her Majesty', 17),
+
+(@beatles_let, N'Two of Us', 1),
+(@beatles_let, N'Dig a Pony', 2),
+(@beatles_let, N'Across the Universe', 3),
+(@beatles_let, N'I Me Mine', 4),
+(@beatles_let, N'Dig It', 5),
+(@beatles_let, N'Let It Be', 6),
+(@beatles_let, N'Maggie Mae', 7),
+(@beatles_let, N'I''ve Got a Feeling', 8),
+(@beatles_let, N'One After 909', 9),
+(@beatles_let, N'The Long and Winding Road', 10),
+(@beatles_let, N'For You Blue', 11),
+(@beatles_let, N'Get Back', 12);
+
+SELECT * FROM Songs;
