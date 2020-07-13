@@ -20,7 +20,9 @@ CREATE TABLE Musicians (
     Name NVARCHAR(50) NOT NULL,
     DateOfBirth DATE,
     DateOfDeath DATE,
-    Band INT NOT NULL REFERENCES Bands (ID),
+    Band INT NOT NULL,
+    CHECK (DateOfBirth < DateOfDeath),
+    FOREIGN KEY (Band) REFERENCES Bands (ID) ON DELETE CASCADE,
     PRIMARY KEY (ID)
 );
 
@@ -32,34 +34,96 @@ CREATE TABLE Instruments (
 
 CREATE TABLE Genres (
 	ID INT NOT NULL AUTO_INCREMENT,
-	Name NVARCHAR(30) NOT NULL,
+	Name NVARCHAR(30) NOT NULL UNIQUE,
     PRIMARY KEY (ID)
 );
 
 CREATE TABLE Albums (
 	ID INT NOT NULL AUTO_INCREMENT,
-    Band INT NOT NULL REFERENCES Bands (ID),
+    Band INT NOT NULL,
     Name NVARCHAR(100) NOT NULL,
     ReleaseDate DATE,
     Genre INT REFERENCES Genres (ID),
     CoverImage BLOB,
+    FOREIGN KEY (Band) REFERENCES Bands (ID) ON DELETE CASCADE,
     PRIMARY KEY (ID)
 );
 
 CREATE TABLE Songs (
 	ID INT NOT NULL AUTO_INCREMENT,
     Name NVARCHAR(100) NOT NULL,
-    Album INT NOT NULL REFERENCES Albums (ID),
+    Album INT NOT NULL,
     TrackNo INT NOT NULL,
     UNIQUE (Album, TrackNo),
+    FOREIGN KEY (Album) REFERENCES Albums (ID) ON DELETE CASCADE,
     PRIMARY KEY (ID)
 );
 
 CREATE TABLE MusicianInstrument (
-	MusicianID INT NOT NULL REFERENCES Musicians (ID),
-    InstrumentID INT NOT NULL REFERENCES Instruments (ID),
+	MusicianID INT NOT NULL,
+    InstrumentID INT NOT NULL,
+    UNIQUE (MusicianID, InstrumentID),
+    FOREIGN KEY (MusicianID) REFERENCES Musicians (ID) ON DELETE CASCADE,
+    FOREIGN KEY (InstrumentID) REFERENCES Instruments (ID) ON DELETE CASCADE,
     PRIMARY KEY (MusicianID, InstrumentID)
 );
+
+/************************************************
+*				Создание триггеров				*
+************************************************/
+
+delimiter //
+CREATE TRIGGER MusicianDeathBeforeFormation BEFORE INSERT ON Musicians
+FOR EACH ROW
+BEGIN
+	SELECT YearOfFormation INTO @band_form_year FROM Bands
+		WHERE Bands.ID = NEW.Band;
+    IF NEW.DateOfDeath < MAKEDATE(@band_form_year, 1) THEN
+		SIGNAL SQLSTATE '45000' SET message_text = N'Дата смерти музыканта - до даты создания его группы';
+	END IF;
+END;//
+
+CREATE TRIGGER MusicianBirthAfterDisbanding BEFORE INSERT ON Musicians
+FOR EACH ROW FOLLOWS MusicianDeathBeforeFormation
+BEGIN
+    SELECT YearOfDisbanding INTO @disband_year FROM Bands
+		WHERE Bands.ID = NEW.Band;
+	IF NEW.DateOfBirth >= MAKEDATE(@disband_year + 1, 1) THEN
+		SIGNAL SQLSTATE '45001' SET message_text = N'Дата рождения музыканта - после распада группы';
+	END IF;
+END;//
+
+CREATE TRIGGER AlbumReleaseBeforeFormation BEFORE INSERT ON Albums
+FOR EACH ROW
+BEGIN
+	SELECT YearOfFormation INTO @band_form_year FROM Bands
+		WHERE Bands.ID = NEW.Band;
+    IF NEW.ReleaseDate < MAKEDATE(@band_form_year, 1) THEN
+		SIGNAL SQLSTATE '45002' SET message_text = N'Дата выпуска альбома - до даты создания группы';
+	END IF;
+END;//
+delimiter ;
+
+/************************************************
+ *				Создание функций		    	*
+ ***********************************************/
+ 
+ delimiter //
+ CREATE FUNCTION FormatAlbum (album_id INT)
+ RETURNS NVARCHAR(170)
+ READS SQL DATA
+ BEGIN
+	SELECT Name, Band, ReleaseDate INTO @album_name, @band_id, @release_date FROM Albums
+		WHERE Albums.ID = album_id;
+	SELECT Name INTO @band_name FROM Bands
+		WHERE Bands.ID = @band_id;
+	SET @result = CONCAT(@band_name, N' - ', @album_name);
+	IF @release_date IS NOT NULL THEN
+		RETURN CONCAT(@result, N' (', YEAR(@release_date), N')');
+	ELSE RETURN @result;
+    END IF;
+ END;//
+ delimiter ;
 
 /************************************************
  *				Заполнение таблиц		    	*
@@ -941,4 +1005,35 @@ INSERT INTO MusicianInstrument (MusicianID, InstrumentID) VALUES
 (@quaife, @bass),
 (@quaife, @backvox);
 
-SELECT * FROM MusicianInstrument;
+/************************************************
+*				Проверка ограничений			*
+************************************************/
+
+/*
+-- Смерть до рождения
+INSERT INTO Musicians (Name, Band, DateOfBirth, DateOfDeath) VALUES
+(N'Invalid Musician', @beatles, '1970-01-01', '1965-01-01');
+
+-- Смерть до вступления в группу
+INSERT INTO Musicians (Name, Band, DateOfBirth, DateOfDeath) VALUES
+(N'Invalid Musician', @beatles, '1900-01-01', '1950-01-01');
+
+-- Рождение после распада группы
+INSERT INTO Musicians (Name, Band, DateOfBirth, DateOfDeath) VALUES
+(N'Invalid Musician', @beatles, '1975-01-01', '1990-01-01');
+
+-- Выпуск альбома до создания группы
+INSERT INTO Albums (Band, Name, ReleaseDate, Genre) VALUES
+(@beatles, N'Invalid Album', '1959-05-05', @rocknroll);
+
+-- Добавление одновременно валидных и невалидных записей (не должно выполняться)
+INSERT INTO Albums (Band, Name, ReleaseDate, Genre) VALUES
+(@beatles, N'Valid Album', '1969-05-05', @rocknroll),
+(@beatles, N'Invalid Album', '1940-01-01', @psych);
+*/
+
+/************************************************
+*				Проверка функций				*
+************************************************/
+
+SELECT FormatAlbum(35);
