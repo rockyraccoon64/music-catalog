@@ -123,6 +123,21 @@ delimiter ;
 	ELSE RETURN @result;
     END IF;
  END;//
+ 
+ CREATE FUNCTION GetMusicianAge(musician_id INT)
+ RETURNS INT
+ READS SQL DATA
+ BEGIN
+	SELECT DateOfBirth, DateOfDeath INTO @birth_date, @death_date FROM Musicians
+		WHERE Musicians.ID = musician_id;
+	IF @birth_date IS NOT NULL THEN
+		IF @death_date IS NOT NULL THEN
+			RETURN TIMESTAMPDIFF(YEAR, @birth_date, @death_date);
+		ELSE RETURN TIMESTAMPDIFF(YEAR, @birth_date, CURDATE());
+        END IF;
+	ELSE RETURN NULL;
+	END IF;
+ END;//
  delimiter ;
 
 /************************************************
@@ -1037,3 +1052,5 @@ INSERT INTO Albums (Band, Name, ReleaseDate, Genre) VALUES
 ************************************************/
 
 SELECT FormatAlbum(35);
+SELECT GetMusicianAge(1);
+SELECT GetMusicianAge(2);
