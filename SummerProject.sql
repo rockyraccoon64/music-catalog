@@ -1,3 +1,4 @@
+SET GLOBAL time_zone = '+05:00';
 DROP DATABASE SummerProject;
 CREATE DATABASE SummerProject;
 USE SummerProject;
