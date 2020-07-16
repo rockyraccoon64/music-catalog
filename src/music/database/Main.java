@@ -1,8 +1,13 @@
+package music.database;
+
+import music.database.items.Band;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import music.database.items.*;
 
 public class Main {
 

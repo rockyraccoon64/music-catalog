@@ -1,11 +1,15 @@
+package music.database.items;
+
+import java.util.Set;
 
 public class Band {
     private final int m_ID;
     private String m_name;
     private short m_formYear;
     private short m_disbandYear;
+    private Set<Musician> m_musicians;
 
-    Band(int id, String name, short formYear, short disbandYear) {
+    public Band(int id, String name, short formYear, short disbandYear) {
         m_ID = id;
         m_name = name;
         m_formYear = formYear;
@@ -38,6 +42,14 @@ public class Band {
 
     public void setDisbandYear(short year) {
         m_disbandYear = year;
+    }
+
+    public void addMusician(Musician musician) {
+        m_musicians.add(musician);
+    }
+
+    public void removeMusician(Musician musician) {
+        m_musicians.remove(musician);
     }
 
     public String toStringValue() {
