@@ -2,14 +2,16 @@ package music.database;
 
 import music.database.items.Band;
 
+import java.awt.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import music.database.items.*;
+import java.util.Comparator;
+import java.util.TreeSet;
 
-public class Main {
+public class MusicApp extends Frame {
 
     // Данные для подключения к БД
     private static final String url = "jdbc:mysql://localhost:3306/summerproject";
@@ -21,7 +23,28 @@ public class Main {
     private static Statement statement;
     private static ResultSet resultSet;
 
+    private static TreeSet<Band> m_bands = new TreeSet<>(new Comparator<Band>() {
+        @Override
+        public int compare(Band o1, Band o2) {
+            String name1 = o1.getName();
+            String name2 = o2.getName();
+            return name1.compareTo(name2);
+        }
+    });
+
+    public MusicApp() {
+        setLayout(new BorderLayout());
+
+        setTitle("Музыкальная база данных");
+        setSize(1000, 750);
+
+        setVisible(true);
+    }
+
     public static void main(String[] args) {
+
+        new MusicApp();
+
         try {
             connection = DriverManager.getConnection(url, user, password);
             getBands();
@@ -39,10 +62,9 @@ public class Main {
         }
     }
 
-    private static void getBands() {
+    private static void getBands() throws SQLException {
         String query = "SELECT * FROM Bands;";
         try {
-
             // getting Statement object to execute query
             statement = connection.createStatement();
 
@@ -57,12 +79,16 @@ public class Main {
 
                 Band currentBand = new Band(id, bandName, formYear, disbandYear);
 
+                m_bands.add(currentBand);
+
                 System.out.println(currentBand.toStringValue());
             }
 
         }
         catch (SQLException sqlEx) {
             sqlEx.printStackTrace();
+
+            throw sqlEx;
         }
         finally {
             try { statement.close(); } catch(SQLException se) { /*can't do anything */ }
