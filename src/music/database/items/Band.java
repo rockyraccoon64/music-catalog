@@ -1,5 +1,6 @@
 package music.database.items;
 
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.TreeSet;
@@ -28,8 +29,8 @@ public class Band {
         m_albums = new TreeSet<>(new Comparator<Album>() {
            @Override
            public int compare(Album o1, Album o2) {
-               Date date1 = o1.getReleaseDate();
-               Date date2 = o2.getReleaseDate();
+               LocalDate date1 = o1.getReleaseDate();
+               LocalDate date2 = o2.getReleaseDate();
                return date1.compareTo(date2);
            }
         });

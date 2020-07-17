@@ -1,6 +1,7 @@
 package music.database.items;
 
 import java.lang.ref.WeakReference;
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.TreeSet;
@@ -8,12 +9,12 @@ import java.util.TreeSet;
 public class Musician {
     private final int m_ID;
     private String m_name;
-    private Date m_birthDate;
-    private Date m_deathDate;
+    private LocalDate m_birthDate;
+    private LocalDate m_deathDate;
     private WeakReference<Band> m_band;
     private TreeSet<Instrument> m_instruments;
 
-    public Musician(int id, String name, Band band, Date birthDate, Date deathDate) {
+    public Musician(int id, String name, Band band, LocalDate birthDate, LocalDate deathDate) {
         m_ID = id;
         m_name = name;
         m_band = new WeakReference<>(band);
@@ -37,11 +38,11 @@ public class Musician {
         return m_name;
     }
 
-    public Date getBirthDate() {
+    public LocalDate getBirthDate() {
         return m_birthDate;
     }
 
-    public Date getDeathDate() {
+    public LocalDate getDeathDate() {
         return m_deathDate;
     }
 
@@ -61,11 +62,11 @@ public class Musician {
         m_band = new WeakReference<>(band);
     }
 
-    public void setBirthDate(Date birthDate) {
+    public void setBirthDate(LocalDate birthDate) {
         m_birthDate = birthDate;
     }
 
-    public void setDeathDate(Date deathDate) {
+    public void setDeathDate(LocalDate deathDate) {
         m_deathDate = deathDate;
     }
 
