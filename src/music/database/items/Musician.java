@@ -3,11 +3,9 @@ package music.database.items;
 import java.lang.ref.WeakReference;
 import java.time.LocalDate;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.TreeSet;
 
-public class Musician {
-    private final int m_ID;
+public class Musician extends DataItem {
     private String m_name;
     private LocalDate m_birthDate;
     private LocalDate m_deathDate;
@@ -15,7 +13,7 @@ public class Musician {
     private TreeSet<Instrument> m_instruments;
 
     public Musician(int id, String name, Band band, LocalDate birthDate, LocalDate deathDate) {
-        m_ID = id;
+        super(id);
         m_name = name;
         m_band = new WeakReference<>(band);
         m_birthDate = birthDate;
@@ -28,10 +26,6 @@ public class Musician {
                return name1.compareTo(name2);
            }
         });
-    }
-
-    public int getID() {
-        return m_ID;
     }
 
     public String getName() {

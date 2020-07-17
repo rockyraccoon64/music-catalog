@@ -2,21 +2,16 @@ package music.database.items;
 
 import java.lang.ref.WeakReference;
 
-public class Song {
-    private final int m_ID;
+public class Song extends DataItem {
     private String m_name;
     private WeakReference<Album> m_album;
     private int m_trackNo;
 
     public Song(int id, String name, Album album, int trackNo) {
-        m_ID = id;
+        super(id);
         m_name = name;
         m_album = new WeakReference<>(album);
         m_trackNo = trackNo;
-    }
-
-    public int getID() {
-        return m_ID;
     }
 
     public String getName() {

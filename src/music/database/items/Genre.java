@@ -1,16 +1,11 @@
 package music.database.items;
 
-public class Genre {
-    private final int m_ID;
+public class Genre extends DataItem {
     private String m_name;
 
     public Genre(int id, String name) {
-        m_ID = id;
+        super(id);
         m_name = name;
-    }
-
-    public int getID() {
-        return m_ID;
     }
 
     public String getName() {

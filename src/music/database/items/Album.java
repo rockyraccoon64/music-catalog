@@ -6,11 +6,9 @@ import music.database.WrongAlbumException;
 import java.lang.ref.WeakReference;
 import java.time.LocalDate;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.TreeSet;
 
-public class Album {
-    private final int m_ID;
+public class Album extends DataItem {
     private WeakReference<Band> m_band;
     private String m_name;
     private LocalDate m_releaseDate;
@@ -18,7 +16,7 @@ public class Album {
     private TreeSet<Song> m_songs;
 
     public Album(int id, Band band, String name, LocalDate releaseDate, Genre genre) {
-        m_ID = id;
+        super(id);
         m_band = new WeakReference<>(band);
         m_name = name;
         m_releaseDate = releaseDate;
@@ -31,10 +29,6 @@ public class Album {
                 return trackNo1 - trackNo2;
             }
         });
-    }
-
-    public int getID() {
-        return m_ID;
     }
 
     public Band getBand() {

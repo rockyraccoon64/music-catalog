@@ -5,8 +5,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.TreeSet;
 
-public class Band {
-    private final int m_ID;
+public class Band extends DataItem {
     private String m_name;
     private short m_formYear;
     private short m_disbandYear;
@@ -14,7 +13,7 @@ public class Band {
     private TreeSet<Album> m_albums;
 
     public Band(int id, String name, short formYear, short disbandYear) {
-        m_ID = id;
+        super(id);
         m_name = name;
         m_formYear = formYear;
         m_disbandYear = disbandYear;
@@ -34,10 +33,6 @@ public class Band {
                return date1.compareTo(date2);
            }
         });
-    }
-
-    public int getID() {
-        return m_ID;
     }
 
     public String getName() {
