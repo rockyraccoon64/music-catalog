@@ -63,10 +63,7 @@ public class Album extends DataItem {
         m_genre = genre;
     }
 
-    public void addSong(Song song) throws WrongAlbumException, TrackNumberException {
-        if (!song.getAlbum().equals(this)) {
-            throw new WrongAlbumException();
-        }
+    public void addSong(Song song) {
         m_songs.add(song);
     }
 

@@ -16,7 +16,8 @@ public class MusicApp extends Frame {
         ALBUMS,
         INSTRUMENTS,
         MUSICIANS,
-        SONGS
+        SONGS,
+        MUSICIAN_INSTRUMENT
     }
 
     private static final HashMap<SQLItem, String> QUERIES = new HashMap<>();
@@ -80,6 +81,18 @@ public class MusicApp extends Frame {
                 case GENRES:
                     getGenres(resultSet);
                     break;
+                case INSTRUMENTS:
+                    getInstruments(resultSet);
+                    break;
+                case MUSICIANS:
+                    getMusicians(resultSet);
+                    break;
+                case SONGS:
+                    getSongs(resultSet);
+                    break;
+                case MUSICIAN_INSTRUMENT:
+                    getMusicianInstruments(resultSet);
+                    break;
                 default:
                     break;
             }
@@ -105,11 +118,11 @@ public class MusicApp extends Frame {
             short formYear = resultSet.getShort("YearOfFormation");
             short disbandYear = resultSet.getShort("YearOfDisbanding");
 
-            Band currentBand = new Band(id, bandName, formYear, disbandYear);
+            Band band = new Band(id, bandName, formYear, disbandYear);
 
-            bandMap.put(id, currentBand);
+            bandMap.put(id, band);
 
-            System.out.println("Добавлена группа: " + currentBand.toStringValue());
+            System.out.println("Добавлена группа: " + band.getName());
         }
     }
 
@@ -119,34 +132,29 @@ public class MusicApp extends Frame {
         while (resultSet.next()) {
             int id = resultSet.getInt("ID");
             String genreName = resultSet.getNString("Name");
-
-            Genre currentGenre = new Genre(id, genreName);
-
-            genreMap.put(id, currentGenre);
-
-            System.out.println("Добавлен жанр: " + currentGenre.getName());
+            Genre genre = new Genre(id, genreName);
+            genreMap.put(id, genre);
+            System.out.println("Добавлен жанр: " + genre.getName());
         }
     }
 
     private static void getAlbums(ResultSet resultSet) throws SQLException {
+        HashMap<Integer, Album> albumMap = MAPS.get(SQLItem.ALBUMS);
         while (resultSet.next()) {
             int id = resultSet.getInt("ID");
             int bandID = resultSet.getInt("Band");
             String albumName = resultSet.getNString("Name");
-            LocalDate releaseDate = resultSet.getDate("ReleaseDate").toLocalDate();
+            LocalDate releaseDate = makeDate(resultSet.getDate("ReleaseDate"));
             int genreID = resultSet.getInt("Genre");
 
-            HashMap<Integer, Genre> genreMap = MAPS.get(SQLItem.GENRES);
-            Genre genre = genreMap.get(genreID);
+            Genre genre = (Genre)getItemByID(SQLItem.GENRES, genreID);
+            Band band = (Band)getItemByID(SQLItem.BANDS, bandID);
 
-            HashMap<Integer, Band> bandMap = MAPS.get(SQLItem.BANDS);
-            Band band = bandMap.get(bandID);
+            Album album = new Album(id, band, albumName, releaseDate, genre);
+            band.addAlbum(album);
+            albumMap.put(id, album);
 
-            Album currentAlbum = new Album(id, band, albumName, releaseDate, genre);
-
-            band.addAlbum(currentAlbum);
-
-            System.out.println("Добавлен альбом: " + currentAlbum.getName() + " (" + currentAlbum.getReleaseDate().getYear() + ")");
+            System.out.println("Добавлен альбом: " + album.getName());
         }
     }
 
@@ -162,15 +170,58 @@ public class MusicApp extends Frame {
     }
 
     private static void getMusicians(ResultSet resultSet) throws SQLException {
+        HashMap<Integer, Musician> musicianMap = MAPS.get(SQLItem.MUSICIANS);
         while (resultSet.next()) {
             int id = resultSet.getInt("ID");
             String musicianName = resultSet.getNString("Name");
-            LocalDate birthDate = resultSet.getDate("DateOfBirth").toLocalDate();
-            LocalDate deathDate = resultSet.getDate("DateOfDeath").toLocalDate();
+            LocalDate birthDate = makeDate(resultSet.getDate("DateOfBirth"));
+            LocalDate deathDate = makeDate(resultSet.getDate("DateOfDeath"));
             int bandID = resultSet.getInt("Band");
+            Band band = (Band)getItemByID(SQLItem.BANDS, bandID);
+
+            Musician musician = new Musician(id, musicianName, band, birthDate, deathDate);
+            band.addMusician(musician);
+            musicianMap.put(id, musician);
 
             System.out.println("Добавлен музыкант: " + musicianName);
         }
+    }
+
+    private static void getSongs(ResultSet resultSet) throws SQLException {
+        HashMap<Integer, Song> songMap = MAPS.get(SQLItem.SONGS);
+        while (resultSet.next()) {
+            int id = resultSet.getInt("ID");
+            String songName = resultSet.getNString("Name");
+            int albumID = resultSet.getInt("Album");
+            int trackNo = resultSet.getInt("TrackNo");
+            Album album = (Album)getItemByID(SQLItem.ALBUMS, albumID);
+
+            Song song = new Song(id, songName, album, trackNo);
+            album.addSong(song);
+            songMap.put(id, song);
+
+            System.out.println("Добавлена песня: " + songName);
+        }
+    }
+
+    private static void getMusicianInstruments(ResultSet resultSet) throws SQLException {
+        while (resultSet.next()) {
+            int musicianID = resultSet.getInt("MusicianID");
+            int instrumentID = resultSet.getInt("InstrumentID");
+            Musician musician = (Musician)getItemByID(SQLItem.MUSICIANS, musicianID);
+            Instrument instrument = (Instrument)getItemByID(SQLItem.INSTRUMENTS, instrumentID);
+            musician.addInstrument(instrument);
+            System.out.println("Добавлен инструмент " + instrument.getName() + " у музыканта " + musician.getName());
+        }
+    }
+
+    private static LocalDate makeDate(java.sql.Date date) {
+        return date == null ? null : date.toLocalDate();
+    }
+
+    private static DataItem getItemByID(SQLItem item, int id) {
+        HashMap<Integer, DataItem> map = MAPS.get(item);
+        return map.get(id);
     }
 
     private static void refreshData() throws SQLException {
@@ -180,6 +231,7 @@ public class MusicApp extends Frame {
         executeGetterQuery(SQLItem.INSTRUMENTS);
         executeGetterQuery(SQLItem.MUSICIANS);
         executeGetterQuery(SQLItem.SONGS);
+        executeGetterQuery(SQLItem.MUSICIAN_INSTRUMENT);
     }
 
     private static void initializeQueryMap() {
@@ -189,14 +241,15 @@ public class MusicApp extends Frame {
         QUERIES.put(SQLItem.INSTRUMENTS, "SELECT * FROM Instruments;");
         QUERIES.put(SQLItem.MUSICIANS, "SELECT * FROM Musicians;");
         QUERIES.put(SQLItem.SONGS, "SELECT * FROM Songs;");
+        QUERIES.put(SQLItem.MUSICIAN_INSTRUMENT, "SELECT * FROM MusicianInstrument;");
     }
 
     private static void initializeItemMaps() {
         MAPS.put(SQLItem.BANDS, new HashMap<Integer, Band>());
         MAPS.put(SQLItem.GENRES, new HashMap<Integer, Genre>());
-        MAPS.put(SQLItem.ALBUMS, new HashMap<Integer, Album>());;
-        MAPS.put(SQLItem.INSTRUMENTS, new HashMap<Integer, Instrument>());;
-        MAPS.put(SQLItem.MUSICIANS, new HashMap<Integer, Musician>());;
+        MAPS.put(SQLItem.INSTRUMENTS, new HashMap<Integer, Instrument>());
+        MAPS.put(SQLItem.MUSICIANS, new HashMap<Integer, Musician>());
+        MAPS.put(SQLItem.ALBUMS, new HashMap<Integer, Album>());
         MAPS.put(SQLItem.SONGS, new HashMap<Integer, Song>());
     }
 }
