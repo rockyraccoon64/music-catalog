@@ -4,6 +4,7 @@ import music.database.items.*;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.HashMap;
 
 public class DataStorage {
@@ -238,5 +239,14 @@ public class DataStorage {
     private static DataItem getItemByID(SQLItem item, int id) {
         HashMap<Integer, DataItem> map = MAPS.get(item);
         return map.get(id);
+    }
+
+    public static Collection<DataItem> getItems(SQLItem item) {
+        switch (item) {
+            case BANDS:
+                return MAPS.get(SQLItem.BANDS).values();
+            default:
+                return null;
+        }
     }
 }
