@@ -75,6 +75,10 @@ public class Band extends DataItem {
         m_albums.add(album);
     }
 
+    public TreeSet<Album> getAlbums() {
+        return m_albums;
+    }
+
     public String toStringValue() {
         String result = "" + m_ID + ": " + m_name + " (" + m_formYear + "-";
         if (m_disbandYear != 0)

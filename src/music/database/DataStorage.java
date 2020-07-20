@@ -6,6 +6,7 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.TreeMap;
 
 public class DataStorage {
 
@@ -18,7 +19,7 @@ public class DataStorage {
     private static Connection connection;
     private static Statement statement;
 
-    private static HashMap<SQLItem, HashMap> MAPS = new HashMap<>();
+    private static HashMap<SQLItem, TreeMap> MAPS = new HashMap<>();
     private static final HashMap<SQLItem, String> QUERIES = new HashMap<>();
 
     public static void initialize() {
@@ -62,12 +63,12 @@ public class DataStorage {
     }
 
     private static void initializeItemMaps() {
-        MAPS.put(SQLItem.BANDS, new HashMap<Integer, Band>());
-        MAPS.put(SQLItem.GENRES, new HashMap<Integer, Genre>());
-        MAPS.put(SQLItem.INSTRUMENTS, new HashMap<Integer, Instrument>());
-        MAPS.put(SQLItem.MUSICIANS, new HashMap<Integer, Musician>());
-        MAPS.put(SQLItem.ALBUMS, new HashMap<Integer, Album>());
-        MAPS.put(SQLItem.SONGS, new HashMap<Integer, Song>());
+        MAPS.put(SQLItem.BANDS, new TreeMap<Integer, Band>());
+        MAPS.put(SQLItem.GENRES, new TreeMap<Integer, Genre>());
+        MAPS.put(SQLItem.INSTRUMENTS, new TreeMap<Integer, Instrument>());
+        MAPS.put(SQLItem.MUSICIANS, new TreeMap<Integer, Musician>());
+        MAPS.put(SQLItem.ALBUMS, new TreeMap<Integer, Album>());
+        MAPS.put(SQLItem.SONGS, new TreeMap<Integer, Song>());
     }
 
     private static void executeGetterQuery(SQLItem item) throws SQLException {
@@ -117,7 +118,7 @@ public class DataStorage {
     }
 
     private static void getBands(ResultSet resultSet) throws SQLException {
-        HashMap<Integer, Band> bandMap = MAPS.get(SQLItem.BANDS);
+        TreeMap<Integer, Band> bandMap = MAPS.get(SQLItem.BANDS);
         bandMap.clear();
         while (resultSet.next()) {
             int id = resultSet.getInt("ID");
@@ -134,7 +135,7 @@ public class DataStorage {
     }
 
     private static void getGenres(ResultSet resultSet) throws SQLException {
-        HashMap<Integer, Genre> genreMap = MAPS.get(SQLItem.GENRES);
+        TreeMap<Integer, Genre> genreMap = MAPS.get(SQLItem.GENRES);
         genreMap.clear();
         while (resultSet.next()) {
             int id = resultSet.getInt("ID");
@@ -146,7 +147,7 @@ public class DataStorage {
     }
 
     private static void getAlbums(ResultSet resultSet) throws SQLException {
-        HashMap<Integer, Album> albumMap = MAPS.get(SQLItem.ALBUMS);
+        TreeMap<Integer, Album> albumMap = MAPS.get(SQLItem.ALBUMS);
         while (resultSet.next()) {
             int id = resultSet.getInt("ID");
             int bandID = resultSet.getInt("Band");
@@ -166,7 +167,7 @@ public class DataStorage {
     }
 
     private static void getInstruments(ResultSet resultSet) throws SQLException {
-        HashMap<Integer, Instrument> instrumentMap = MAPS.get(SQLItem.INSTRUMENTS);
+        TreeMap<Integer, Instrument> instrumentMap = MAPS.get(SQLItem.INSTRUMENTS);
         while (resultSet.next()) {
             int id = resultSet.getInt("ID");
             String instrumentName = resultSet.getNString("Name");
@@ -177,7 +178,7 @@ public class DataStorage {
     }
 
     private static void getMusicians(ResultSet resultSet) throws SQLException {
-        HashMap<Integer, Musician> musicianMap = MAPS.get(SQLItem.MUSICIANS);
+        TreeMap<Integer, Musician> musicianMap = MAPS.get(SQLItem.MUSICIANS);
         while (resultSet.next()) {
             int id = resultSet.getInt("ID");
             String musicianName = resultSet.getNString("Name");
@@ -195,7 +196,7 @@ public class DataStorage {
     }
 
     private static void getSongs(ResultSet resultSet) throws SQLException {
-        HashMap<Integer, Song> songMap = MAPS.get(SQLItem.SONGS);
+        TreeMap<Integer, Song> songMap = MAPS.get(SQLItem.SONGS);
         while (resultSet.next()) {
             int id = resultSet.getInt("ID");
             String songName = resultSet.getNString("Name");
@@ -226,8 +227,8 @@ public class DataStorage {
         return date == null ? null : date.toLocalDate();
     }
 
-    private static DataItem getItemByID(SQLItem item, int id) {
-        HashMap<Integer, DataItem> map = MAPS.get(item);
+    public static DataItem getItemByID(SQLItem item, int id) {
+        TreeMap<Integer, DataItem> map = MAPS.get(item);
         return map.get(id);
     }
 

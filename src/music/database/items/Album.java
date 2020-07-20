@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.TreeSet;
 
-public class Album extends DataItem {
+public class Album extends DataItem implements Comparable<Album> {
     private WeakReference<Band> m_band;
     private String m_name;
     private LocalDate m_releaseDate;
@@ -69,5 +69,22 @@ public class Album extends DataItem {
 
     public void removeSong(Song song) {
         m_songs.remove(song);
+    }
+
+    // Сравнение альбомов сначала по дате выхода, потом по названию
+    public int compareTo(Album other) {
+        LocalDate thisReleaseDate = this.getReleaseDate();
+        LocalDate otherReleaseDate = other.getReleaseDate();
+        int dateComparison = 0;
+        if (thisReleaseDate != null) {
+            if (otherReleaseDate != null) {
+                dateComparison = thisReleaseDate.compareTo(otherReleaseDate);
+            }
+            else dateComparison = -1;
+        }
+        else if (otherReleaseDate != null) {
+            dateComparison = 1;
+        }
+        return dateComparison == 0 ? this.getName().compareTo(other.getName()) : dateComparison;
     }
 }

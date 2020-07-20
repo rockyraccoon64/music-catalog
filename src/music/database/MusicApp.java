@@ -10,6 +10,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.TreeSet;
 
 public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
@@ -17,8 +18,6 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
     private static final int APP_WIDTH = 1000;
     private static final int APP_HEIGHT = 750;
     private static final Color BACKGROUND_COLOR = new Color(255, 244, 161);
-
-    private final HashMap<SQLItem, DefaultListModel<DataItem>> m_listModels = new HashMap<>();
 
     public MusicApp() {
         setLayout(new BorderLayout());
@@ -37,7 +36,8 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         topPanel.add(mainLabel, BorderLayout.CENTER);
         add(topPanel, BorderLayout.NORTH);
 
-        showBandPage();
+        //showBandListPage();
+        showAlbumListPage(1);
 
         addWindowListener(this);
 
@@ -58,21 +58,6 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         });
     }
 
-    public DefaultListModel<DataItem> getListModel(SQLItem item) {
-        DefaultListModel<DataItem> listModel = m_listModels.get(item);
-        if (listModel == null) {
-            listModel = new DefaultListModel<>();
-            m_listModels.put(item, listModel);
-
-            Collection<DataItem> dataItems = DataStorage.getItems(item);
-
-            for (DataItem dataItem : dataItems) {
-                listModel.addElement(dataItem);
-            }
-        }
-        return listModel;
-    }
-
     public JPanel createListPanel(String label) {
         JPanel listPanel = new JPanel();
         listPanel.setLayout(new BorderLayout());
@@ -81,16 +66,20 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
                 BorderFactory.createLineBorder(Color.BLACK, 3)));
         listPanel.setOpaque(false);
 
-        JLabel bandLabel = createListLabel("Группы");
+        JLabel bandLabel = createListLabel(label);
         listPanel.add(bandLabel, BorderLayout.NORTH);
 
         return listPanel;
     }
 
-    public void showBandPage() {
-        Collection<DataItem> bands = DataStorage.getItems(SQLItem.BANDS);
+    public void showBandListPage() {
+        DefaultListModel<Band> listModel = new DefaultListModel<>();
+        Collection<DataItem> dataItems = DataStorage.getItems(SQLItem.BANDS);
+        for (DataItem dataItem : dataItems) {
+            Band band = (Band)dataItem;
+            listModel.addElement(band);
+        }
 
-        DefaultListModel<DataItem> listModel = getListModel(SQLItem.BANDS);
         JList bandList = new JList(listModel);
         bandList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         bandList.setLayoutOrientation(JList.VERTICAL);
@@ -100,6 +89,34 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         JPanel listPanel = createListPanel("Группы");
 
         JScrollPane scrollPane = new JScrollPane(bandList);
+        scrollPane.setOpaque(false);
+        scrollPane.setPreferredSize(new Dimension(APP_WIDTH, 500));
+        listPanel.add(scrollPane);
+
+        add(listPanel, BorderLayout.CENTER);
+    }
+
+    public void showAlbumListPage(int bandID) {
+        DefaultListModel<Album> listModel = new DefaultListModel<>();
+        //Collection<DataItem> albums = DataStorage.getItems(SQLItem.ALBUMS);
+        //albums.removeIf(item -> ((Album)item).getBand().getID() == bandID);
+
+        Band thisBand = (Band)DataStorage.getItemByID(SQLItem.BANDS, bandID);
+        TreeSet<Album> albums = thisBand.getAlbums();
+
+        for (Album album : albums) {
+            listModel.addElement(album);
+        }
+
+        JList albumList = new JList(listModel);
+        albumList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        albumList.setLayoutOrientation(JList.VERTICAL);
+        albumList.setVisibleRowCount(-1);
+        albumList.setCellRenderer(new AlbumRenderer());
+
+        JPanel listPanel = createListPanel("Альбомы " + thisBand.getName());
+
+        JScrollPane scrollPane = new JScrollPane(albumList);
         scrollPane.setOpaque(false);
         scrollPane.setPreferredSize(new Dimension(APP_WIDTH, 500));
         listPanel.add(scrollPane);
