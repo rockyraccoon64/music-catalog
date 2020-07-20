@@ -9,14 +9,16 @@ public class Band extends DataItem {
     private String m_name;
     private short m_formYear;
     private short m_disbandYear;
+    private byte[] m_image;
     private TreeSet<Musician> m_musicians;
     private TreeSet<Album> m_albums;
 
-    public Band(int id, String name, short formYear, short disbandYear) {
+    public Band(int id, String name, short formYear, short disbandYear, byte[] image) {
         super(id);
         m_name = name;
         m_formYear = formYear;
         m_disbandYear = disbandYear;
+        m_image = image;
         m_musicians = new TreeSet<>(new Comparator<Musician>() {
            @Override
            public int compare(Musician o1, Musician o2) {
@@ -83,6 +85,14 @@ public class Band extends DataItem {
 
     public void removeAlbum(Album album) {
         m_albums.add(album);
+    }
+
+    public byte[] getImage() {
+        return m_image;
+    }
+
+    public void setImage(byte[] image) {
+        m_image = image;
     }
 
     public TreeSet<Album> getAlbums() {

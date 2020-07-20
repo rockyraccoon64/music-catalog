@@ -2,11 +2,14 @@ package music.database;
 
 import music.database.items.*;
 
+import java.io.File;
+import java.io.InputStream;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.TreeMap;
+import java.util.Vector;
 
 public class DataStorage {
 
@@ -21,10 +24,28 @@ public class DataStorage {
 
     private static HashMap<SQLItem, TreeMap> MAPS = new HashMap<>();
     private static final HashMap<SQLItem, String> QUERIES = new HashMap<>();
+    private static final HashMap<SQLItem, String> ITEM_NAMES = new HashMap<>();
+    private static final HashMap<SQLItem, String> BLOB_NAMES = new HashMap<>();
 
     public static void initialize() {
+        initializeItemNames();
+        initializeBlobNames();
         initializeQueryMap();
         initializeItemMaps();
+    }
+
+    private static void initializeBlobNames() {
+        BLOB_NAMES.put(SQLItem.BANDS, "Photo");
+        BLOB_NAMES.put(SQLItem.ALBUMS, "CoverImage");
+    }
+
+    private static void initializeItemNames() {
+        ITEM_NAMES.put(SQLItem.BANDS, "Bands");
+        ITEM_NAMES.put(SQLItem.ALBUMS, "Albums");
+        ITEM_NAMES.put(SQLItem.MUSICIANS, "Musicians");
+        ITEM_NAMES.put(SQLItem.INSTRUMENTS, "Instruments");
+        ITEM_NAMES.put(SQLItem.GENRES, "Genres");
+        ITEM_NAMES.put(SQLItem.SONGS, "Songs");
     }
 
     public static void refreshData() {
@@ -38,6 +59,47 @@ public class DataStorage {
             executeGetterQuery(SQLItem.MUSICIANS);
             executeGetterQuery(SQLItem.SONGS);
             executeGetterQuery(SQLItem.MUSICIAN_INSTRUMENT);
+        }
+        catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        finally {
+            try {
+                connection.close();
+            }
+            catch (SQLException ex) {
+
+            }
+        }
+    }
+
+    public static void executeQuery(String query) {
+        try {
+            connection = DriverManager.getConnection(url, user, password);
+            statement = connection.createStatement();
+            statement.executeQuery(query);
+        }
+        catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        finally {
+            try {
+                connection.close();
+            }
+            catch (SQLException ex) {
+
+            }
+        }
+    }
+
+    public static void insertBlobFromFile(SQLItem item, int id, File file) {
+        String query = "UPDATE " + ITEM_NAMES.get(item)
+                + " SET " + BLOB_NAMES.get(item) + " = ? "
+                + " WHERE ID = ?";
+
+        try {
+            connection = DriverManager.getConnection(url, user, password);
+            PreparedStatement pstmt = connection.prepareStatement(query);
         }
         catch (SQLException ex) {
             ex.printStackTrace();
@@ -125,8 +187,9 @@ public class DataStorage {
             String bandName = resultSet.getNString("Name");
             short formYear = resultSet.getShort("YearOfFormation");
             short disbandYear = resultSet.getShort("YearOfDisbanding");
+            byte[] image = resultSet.getBytes("Photo");
 
-            Band band = new Band(id, bandName, formYear, disbandYear);
+            Band band = new Band(id, bandName, formYear, disbandYear, image);
 
             bandMap.put(id, band);
 

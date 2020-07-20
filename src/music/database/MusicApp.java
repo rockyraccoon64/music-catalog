@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.TreeSet;
@@ -18,6 +19,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
     private static final int APP_WIDTH = 1000;
     private static final int APP_HEIGHT = 750;
     private static final Color BACKGROUND_COLOR = new Color(255, 244, 161);
+    private JButton imageButton;
 
     public MusicApp() {
         setLayout(new BorderLayout());
@@ -134,6 +136,18 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         scrollPane.setOpaque(false);
         scrollPane.setPreferredSize(new Dimension(APP_WIDTH - infoPanel.getWidth(), 500));
         listPanel.add(scrollPane);
+
+        imageButton = new JButton("Загрузить изображение");
+        infoPanel.add(imageButton);
+        imageButton.addActionListener(new ActionListener() {
+           public void actionPerformed(ActionEvent e) {
+               final JFileChooser fc = new JFileChooser();
+               int returnVal = fc.showOpenDialog(MusicApp.this);
+               if (returnVal == JFileChooser.APPROVE_OPTION) {
+                   File file = fc.getSelectedFile();
+               }
+           }
+        });
 
         add(listPanel, BorderLayout.CENTER);
     }
