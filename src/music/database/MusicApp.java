@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.Collection;
+import java.util.HashMap;
 
 public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
@@ -16,6 +17,8 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
     private static final int APP_WIDTH = 1000;
     private static final int APP_HEIGHT = 750;
     private static final Color BACKGROUND_COLOR = new Color(255, 244, 161);
+
+    private final HashMap<SQLItem, DefaultListModel<DataItem>> m_listModels = new HashMap<>();
 
     public MusicApp() {
         setLayout(new BorderLayout());
@@ -32,45 +35,9 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         mainLabel.setHorizontalAlignment(SwingConstants.CENTER);
         mainLabel.setFont(new Font("Arial", Font.BOLD, 30));
         topPanel.add(mainLabel, BorderLayout.CENTER);
-
-        /*Panel topPaddingPanel = new Panel();
-        topPaddingPanel.setSize(0, 50);
-        topPanel.add(topPaddingPanel, BorderLayout.NORTH);*/
-
-        Collection<DataItem> bands = DataStorage.getItems(DataStorage.SQLItem.BANDS);
-
-        DefaultListModel listModel = new DefaultListModel();
-        for (DataItem item : bands) {
-            Band band = (Band)item;
-            listModel.addElement(band);
-        }
-        JList bandList = new JList(listModel);
-        bandList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        bandList.setLayoutOrientation(JList.VERTICAL);
-        bandList.setVisibleRowCount(-1);
-        bandList.setCellRenderer(new BandRenderer());
-
-        JPanel listPanel = new JPanel();
-        listPanel.setLayout(new BorderLayout());
-        listPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createEmptyBorder(0, 30, 30, 30),
-                BorderFactory.createLineBorder(Color.BLACK, 3)));
-        listPanel.setOpaque(false);
-
-        JLabel bandLabel = new JLabel("Группы");
-        bandLabel.setHorizontalAlignment(JLabel.CENTER);
-        bandLabel.setFont(new Font("Arial", Font.PLAIN, 20));
-        bandLabel.setBackground(new Color(171, 255, 156));
-        bandLabel.setOpaque(true);
-        listPanel.add(bandLabel, BorderLayout.NORTH);
-
-        JScrollPane scrollPane = new JScrollPane(bandList);
-        scrollPane.setOpaque(false);
-        scrollPane.setPreferredSize(new Dimension(APP_WIDTH, 500));
-        listPanel.add(scrollPane);
-
         add(topPanel, BorderLayout.NORTH);
-        add(listPanel, BorderLayout.CENTER);
+
+        showBandPage();
 
         addWindowListener(this);
 
@@ -89,6 +56,64 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
                 new MusicApp();
             }
         });
+    }
+
+    public DefaultListModel<DataItem> getListModel(SQLItem item) {
+        DefaultListModel<DataItem> listModel = m_listModels.get(item);
+        if (listModel == null) {
+            listModel = new DefaultListModel<>();
+            m_listModels.put(item, listModel);
+
+            Collection<DataItem> dataItems = DataStorage.getItems(item);
+
+            for (DataItem dataItem : dataItems) {
+                listModel.addElement(dataItem);
+            }
+        }
+        return listModel;
+    }
+
+    public JPanel createListPanel(String label) {
+        JPanel listPanel = new JPanel();
+        listPanel.setLayout(new BorderLayout());
+        listPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createEmptyBorder(0, 30, 30, 30),
+                BorderFactory.createLineBorder(Color.BLACK, 3)));
+        listPanel.setOpaque(false);
+
+        JLabel bandLabel = createListLabel("Группы");
+        listPanel.add(bandLabel, BorderLayout.NORTH);
+
+        return listPanel;
+    }
+
+    public void showBandPage() {
+        Collection<DataItem> bands = DataStorage.getItems(SQLItem.BANDS);
+
+        DefaultListModel<DataItem> listModel = getListModel(SQLItem.BANDS);
+        JList bandList = new JList(listModel);
+        bandList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        bandList.setLayoutOrientation(JList.VERTICAL);
+        bandList.setVisibleRowCount(-1);
+        bandList.setCellRenderer(new BandRenderer());
+
+        JPanel listPanel = createListPanel("Группы");
+
+        JScrollPane scrollPane = new JScrollPane(bandList);
+        scrollPane.setOpaque(false);
+        scrollPane.setPreferredSize(new Dimension(APP_WIDTH, 500));
+        listPanel.add(scrollPane);
+
+        add(listPanel, BorderLayout.CENTER);
+    }
+
+    public JLabel createListLabel(String text) {
+        JLabel bandLabel = new JLabel(text);
+        bandLabel.setHorizontalAlignment(JLabel.CENTER);
+        bandLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+        bandLabel.setBackground(new Color(171, 255, 156));
+        bandLabel.setOpaque(true);
+        return bandLabel;
     }
 
     @Override

@@ -9,16 +9,6 @@ import java.util.HashMap;
 
 public class DataStorage {
 
-    enum SQLItem {
-        BANDS,
-        GENRES,
-        ALBUMS,
-        INSTRUMENTS,
-        MUSICIANS,
-        SONGS,
-        MUSICIAN_INSTRUMENT
-    }
-
     // Данные для подключения к БД
     private static final String url = "jdbc:mysql://localhost:3306/summerproject?serverTimezone=UTC";
     private static final String user = "root";
