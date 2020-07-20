@@ -97,11 +97,25 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
     }
 
     public void showAlbumListPage(int bandID) {
+        Band thisBand = (Band)DataStorage.getItemByID(SQLItem.BANDS, bandID);
+
+        JPanel infoPanel = new JPanel();
+        infoPanel.setOpaque(false);
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+        infoPanel.setPreferredSize(new Dimension(APP_WIDTH / 3, 500));
+        infoPanel.setBorder(BorderFactory.createEmptyBorder(0, 30, 30, 30));
+
+        TreeSet<Musician> musicians = thisBand.getMusicians();
+
+        for (Musician musician : musicians) {
+            infoPanel.add(createMusicianLabel(musician));
+        }
+        add(infoPanel, BorderLayout.WEST);
+
         DefaultListModel<Album> listModel = new DefaultListModel<>();
         //Collection<DataItem> albums = DataStorage.getItems(SQLItem.ALBUMS);
         //albums.removeIf(item -> ((Album)item).getBand().getID() == bandID);
 
-        Band thisBand = (Band)DataStorage.getItemByID(SQLItem.BANDS, bandID);
         TreeSet<Album> albums = thisBand.getAlbums();
 
         for (Album album : albums) {
@@ -118,13 +132,38 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
         JScrollPane scrollPane = new JScrollPane(albumList);
         scrollPane.setOpaque(false);
-        scrollPane.setPreferredSize(new Dimension(APP_WIDTH, 500));
+        scrollPane.setPreferredSize(new Dimension(APP_WIDTH - infoPanel.getWidth(), 500));
         listPanel.add(scrollPane);
 
         add(listPanel, BorderLayout.CENTER);
     }
 
-    public JLabel createListLabel(String text) {
+    public static JLabel createMusicianLabel(Musician musician) {
+        StringBuilder sb = new StringBuilder(musician.getName());
+
+        boolean isFirst = true;
+
+        for (Instrument instrument : musician.getInstruments()) {
+            if (isFirst) {
+                sb.append(" - ");
+                isFirst = false;
+            }
+            else sb.append(", ");
+
+            sb.append(instrument.getName().toLowerCase());
+        }
+
+        sb.insert(0, "<html>");
+        sb.append("</html>");
+
+        JLabel label = new JLabel(sb.toString());
+        label.setFont(new Font("Arial", Font.PLAIN, 15));
+        label.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
+
+        return label;
+    }
+
+    public static JLabel createListLabel(String text) {
         JLabel bandLabel = new JLabel(text);
         bandLabel.setHorizontalAlignment(JLabel.CENTER);
         bandLabel.setFont(new Font("Arial", Font.PLAIN, 20));

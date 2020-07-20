@@ -28,9 +28,19 @@ public class Band extends DataItem {
         m_albums = new TreeSet<>(new Comparator<Album>() {
            @Override
            public int compare(Album o1, Album o2) {
-               LocalDate date1 = o1.getReleaseDate();
-               LocalDate date2 = o2.getReleaseDate();
-               return date1.compareTo(date2);
+               LocalDate firstDate = o1.getReleaseDate();
+               LocalDate secondDate = o2.getReleaseDate();
+               int dateComparison = 0;
+               if (firstDate != null) {
+                   if (secondDate != null) {
+                       dateComparison = firstDate.compareTo(secondDate);
+                   }
+                   else dateComparison = -1;
+               }
+               else if (secondDate != null) {
+                   dateComparison = 1;
+               }
+               return dateComparison == 0 ? o1.getName().compareTo(o2.getName()) : dateComparison;
            }
         });
     }
@@ -77,6 +87,10 @@ public class Band extends DataItem {
 
     public TreeSet<Album> getAlbums() {
         return m_albums;
+    }
+
+    public TreeSet<Musician> getMusicians() {
+        return m_musicians;
     }
 
     public String toStringValue() {

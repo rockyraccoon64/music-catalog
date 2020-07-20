@@ -31,7 +31,7 @@ public class AlbumRenderer implements ListCellRenderer<Album> {
         albumYear.setFont(new Font("Arial", Font.PLAIN, 20));
         panel.add(albumYear);
 
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 
         if (isSelected) {
             panel.setBackground(list.getSelectionBackground());

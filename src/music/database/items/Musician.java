@@ -44,8 +44,8 @@ public class Musician extends DataItem {
         return m_band.get();
     }
 
-    public Instrument[] getInstruments() {
-        return (Instrument[])(m_instruments.toArray());
+    public TreeSet<Instrument> getInstruments() {
+        return m_instruments;
     }
 
     public void setName(String name) {
