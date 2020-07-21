@@ -2,10 +2,7 @@ package music.database;
 
 import music.database.items.*;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.Collection;
@@ -94,7 +91,7 @@ public class DataStorage {
         }
     }
 
-    public static void insertBlobFromFile(SQLItem item, int id, File file) throws FileNotFoundException {
+    public static void insertBlobFromFile(SQLItem item, int id, File file) throws IOException {
         String query = "UPDATE " + ITEM_NAMES.get(item)
                 + " SET " + BLOB_NAMES.get(item) + " = ? "
                 + " WHERE ID = ?";
@@ -103,9 +100,20 @@ public class DataStorage {
             connection = DriverManager.getConnection(url, user, password);
             pstmt = connection.prepareStatement(query);
             FileInputStream input = new FileInputStream(file);
-            pstmt.setBinaryStream(1, input);
+            byte[] bytes = input.readAllBytes();
+            pstmt.setBinaryStream(1, new ByteArrayInputStream(bytes));
             pstmt.setInt(2, id);
             pstmt.executeUpdate();
+            DataItem currentItem = getItemByID(item, id);
+
+            switch (item) {
+                case BANDS:
+                    Band band = (Band)currentItem;
+                    band.setImage(bytes);
+                    break;
+                default:
+                    break;
+            }
         }
         catch (SQLException ex) {
             ex.printStackTrace();

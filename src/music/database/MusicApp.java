@@ -4,18 +4,15 @@ import music.database.items.*;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.TreeSet;
 
 public class MusicApp extends JFrame implements WindowListener, ActionListener {
@@ -24,7 +21,8 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
     private static final int APP_WIDTH = 1000;
     private static final int APP_HEIGHT = 750;
     private static final Color BACKGROUND_COLOR = new Color(255, 244, 161);
-    private JButton imageButton;
+    private static final int INFO_PANEL_WIDTH = APP_WIDTH / 3;
+    private static final int INFO_PANEL_BORDER = 30;
 
     public MusicApp() {
         setLayout(new BorderLayout());
@@ -33,6 +31,16 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         setSize(APP_WIDTH, APP_HEIGHT);
         getContentPane().setBackground(BACKGROUND_COLOR);
 
+        showBandListPage();
+        //showAlbumListPage(1);
+
+        addWindowListener(this);
+
+        pack();
+        setVisible(true);
+    }
+
+    public void addTopPanel() {
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setPreferredSize(new Dimension(APP_WIDTH, 75));
         topPanel.setOpaque(false);
@@ -42,16 +50,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         mainLabel.setFont(new Font("Arial", Font.BOLD, 30));
         topPanel.add(mainLabel, BorderLayout.CENTER);
         add(topPanel, BorderLayout.NORTH);
-
-        //showBandListPage();
-        showAlbumListPage(1);
-
-        addWindowListener(this);
-
-        pack();
-        setVisible(true);
     }
-
     public static void main(String[] args) {
         DataStorage.initialize();
         DataStorage.refreshData();
@@ -79,7 +78,72 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         return listPanel;
     }
 
+    public class ListMouseAdapter extends MouseAdapter {
+        private SQLItem m_item;
+
+        public ListMouseAdapter(SQLItem item) {
+            m_item = item;
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            JList list = (JList)e.getSource();
+            if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
+                int index = list.locationToIndex(e.getPoint());
+                Object selectedItem = list.getModel().getElementAt(index);
+                switch (m_item) {
+                    case BANDS:
+                        Band band = (Band)selectedItem;
+                        showAlbumListPage(band.getID());
+                        revalidate();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+
+    public class ImageButtonListener implements ActionListener {
+
+        private SQLItem m_item;
+        private DataItem m_dataItem;
+        private JLabel m_label;
+
+        ImageButtonListener(SQLItem item, DataItem dataItem, JLabel label) {
+            m_item = item;
+            m_dataItem = dataItem;
+            m_label = label;
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            final JFileChooser fc = new JFileChooser();
+            int returnVal = fc.showOpenDialog(MusicApp.this);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                File file = fc.getSelectedFile();
+                try {
+                    DataStorage.insertBlobFromFile(m_item, m_dataItem.getID(), file);
+                    JOptionPane.showMessageDialog(MusicApp.this,
+                            "Изображение загружено.",
+                            "Загрузка изображения",
+                            JOptionPane.INFORMATION_MESSAGE);
+                    refreshImage(m_label, (Band)m_dataItem);
+                }
+                catch (IOException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(MusicApp.this,
+                            "Не удалось загрузить изображение.",
+                            "Загрузка изображения",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
+    }
+
     public void showBandListPage() {
+        getContentPane().removeAll();
+        addTopPanel();
+
         DefaultListModel<Band> listModel = new DefaultListModel<>();
         Collection<DataItem> dataItems = DataStorage.getItems(SQLItem.BANDS);
         for (DataItem dataItem : dataItems) {
@@ -87,15 +151,17 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
             listModel.addElement(band);
         }
 
-        JList bandList = new JList(listModel);
-        bandList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        bandList.setLayoutOrientation(JList.VERTICAL);
-        bandList.setVisibleRowCount(-1);
-        bandList.setCellRenderer(new BandRenderer());
+        JList list = new JList(listModel);
+        list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        list.setLayoutOrientation(JList.VERTICAL);
+        list.setVisibleRowCount(-1);
+        list.setCellRenderer(new BandRenderer());
+        //m_list.getSelectionModel().addListSelectionListener(MusicApp.this);
+        list.addMouseListener(new ListMouseAdapter(SQLItem.BANDS));
 
         JPanel listPanel = createListPanel("Группы");
 
-        JScrollPane scrollPane = new JScrollPane(bandList);
+        JScrollPane scrollPane = new JScrollPane(list);
         scrollPane.setOpaque(false);
         scrollPane.setPreferredSize(new Dimension(APP_WIDTH, APP_HEIGHT));
         listPanel.add(scrollPane);
@@ -104,10 +170,10 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
     }
 
     public void showAlbumListPage(int bandID) {
-        Band thisBand = (Band)DataStorage.getItemByID(SQLItem.BANDS, bandID);
+        getContentPane().removeAll();
+        addTopPanel();
 
-        final int INFO_PANEL_WIDTH = APP_WIDTH / 3;
-        final int INFO_PANEL_BORDER = 30;
+        Band thisBand = (Band)DataStorage.getItemByID(SQLItem.BANDS, bandID);
 
         JPanel infoPanel = new JPanel();
         infoPanel.setOpaque(false);
@@ -115,20 +181,11 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         infoPanel.setPreferredSize(new Dimension(INFO_PANEL_WIDTH, APP_HEIGHT));
         infoPanel.setBorder(BorderFactory.createEmptyBorder(0, INFO_PANEL_BORDER, INFO_PANEL_BORDER, 0));
 
-        try {
-            byte[] imageByteArray = thisBand.getImage();
-            if (imageByteArray != null) {
-                BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageByteArray));
-                int IMAGE_SIZE = INFO_PANEL_WIDTH - INFO_PANEL_BORDER;
-                JLabel imageLabel = new JLabel(new ImageIcon(
-                        image.getScaledInstance(IMAGE_SIZE, IMAGE_SIZE, Image.SCALE_DEFAULT))
-                );
-                infoPanel.add(imageLabel);
-            }
-        }
-        catch (IOException ex) {
-            System.out.println("Error while loading image");
-        }
+        JLabel imageLabel = new JLabel();
+
+        refreshImage(imageLabel, thisBand);
+
+        infoPanel.add(imageLabel);
 
         TreeSet<Musician> musicians = thisBand.getMusicians();
 
@@ -147,43 +204,51 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
             listModel.addElement(album);
         }
 
-        JList albumList = new JList(listModel);
-        albumList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        albumList.setLayoutOrientation(JList.VERTICAL);
-        albumList.setVisibleRowCount(-1);
-        albumList.setCellRenderer(new AlbumRenderer());
+        JList list = new JList(listModel);
+        list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        list.setLayoutOrientation(JList.VERTICAL);
+        list.setVisibleRowCount(-1);
+        list.setCellRenderer(new AlbumRenderer());
 
         JPanel listPanel = createListPanel("Альбомы " + thisBand.getName());
 
-        JScrollPane scrollPane = new JScrollPane(albumList);
+        JScrollPane scrollPane = new JScrollPane(list);
         scrollPane.setOpaque(false);
         scrollPane.setPreferredSize(new Dimension(APP_WIDTH - INFO_PANEL_WIDTH, APP_HEIGHT));
         listPanel.add(scrollPane);
 
-        imageButton = new JButton("Загрузить изображение");
+        JButton imageButton = new JButton("Загрузить изображение");
         infoPanel.add(imageButton);
-        imageButton.addActionListener(new ActionListener() {
-           public void actionPerformed(ActionEvent e) {
-               final JFileChooser fc = new JFileChooser();
-               int returnVal = fc.showOpenDialog(MusicApp.this);
-               if (returnVal == JFileChooser.APPROVE_OPTION) {
-                   File file = fc.getSelectedFile();
-                   try {
-                       DataStorage.insertBlobFromFile(SQLItem.BANDS, bandID, file);
-                       JOptionPane.showMessageDialog(MusicApp.this,
-                               "Изображение загружено.",
-                               "Загрузка изображения",
-                               JOptionPane.INFORMATION_MESSAGE);
-                   }
-                   catch (FileNotFoundException ex) {
-                       ex.printStackTrace();
-
-                   }
-               }
-           }
-        });
+        imageButton.addActionListener(new ImageButtonListener(SQLItem.BANDS, thisBand, imageLabel));
 
         add(listPanel, BorderLayout.CENTER);
+    }
+
+    public void refreshImage(JLabel component, Band band) {
+        byte[] imageByteArray = band.getImage();
+        try {
+            if (imageByteArray != null) {
+                BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageByteArray));
+                int width = image.getWidth();
+                int height = image.getHeight();
+                int scaledWidth;
+                int scaledHeight;
+                if (width > height) {
+                    scaledWidth = INFO_PANEL_WIDTH - INFO_PANEL_BORDER;
+                    scaledHeight = (int)(height * ((double)scaledWidth / width));
+                }
+                else {
+                    scaledHeight = INFO_PANEL_WIDTH - INFO_PANEL_BORDER;
+                    scaledWidth = (int)(width * ((double)scaledHeight / height));
+                }
+                component.setIcon(new ImageIcon(
+                        image.getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_DEFAULT)
+                ));
+            }
+        }
+        catch (IOException ex) {
+            System.out.println("Error while loading image");
+        }
     }
 
     public static JLabel createMusicianLabel(Musician musician) {
