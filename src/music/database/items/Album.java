@@ -1,26 +1,25 @@
 package music.database.items;
 
-import music.database.TrackNumberException;
-import music.database.WrongAlbumException;
-
 import java.lang.ref.WeakReference;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.TreeSet;
 
-public class Album extends DataItem {
+public class Album extends DataItem implements ImageContainer {
     private WeakReference<Band> m_band;
     private String m_name;
     private LocalDate m_releaseDate;
     private Genre m_genre;
+    private byte[] m_image;
     private TreeSet<Song> m_songs;
 
-    public Album(int id, Band band, String name, LocalDate releaseDate, Genre genre) {
+    public Album(int id, Band band, String name, LocalDate releaseDate, Genre genre, byte[] image) {
         super(id);
         m_band = new WeakReference<>(band);
         m_name = name;
         m_releaseDate = releaseDate;
         m_genre = genre;
+        m_image = image;
         m_songs = new TreeSet<>(new Comparator<Song>() {
             @Override
             public int compare(Song o1, Song o2) {
@@ -69,5 +68,17 @@ public class Album extends DataItem {
 
     public void removeSong(Song song) {
         m_songs.remove(song);
+    }
+
+    public TreeSet<Song> getSongs() {
+        return m_songs;
+    }
+
+    public byte[] getImage() {
+        return m_image;
+    }
+
+    public void setImage(byte[] image) {
+        m_image = image;
     }
 }

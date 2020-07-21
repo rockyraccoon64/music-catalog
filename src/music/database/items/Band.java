@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.TreeSet;
 
-public class Band extends DataItem {
+public class Band extends DataItem implements ImageContainer {
     private String m_name;
     private short m_formYear;
     private short m_disbandYear;

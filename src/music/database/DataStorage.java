@@ -111,6 +111,9 @@ public class DataStorage {
                     Band band = (Band)currentItem;
                     band.setImage(bytes);
                     break;
+                case ALBUMS:
+                    Album album = (Album)currentItem;
+                    album.setImage(bytes);
                 default:
                     break;
             }
@@ -232,11 +235,12 @@ public class DataStorage {
             String albumName = resultSet.getNString("Name");
             LocalDate releaseDate = makeDate(resultSet.getDate("ReleaseDate"));
             int genreID = resultSet.getInt("Genre");
+            byte[] image = resultSet.getBytes("CoverImage");
 
             Genre genre = (Genre)getItemByID(SQLItem.GENRES, genreID);
             Band band = (Band)getItemByID(SQLItem.BANDS, bandID);
 
-            Album album = new Album(id, band, albumName, releaseDate, genre);
+            Album album = new Album(id, band, albumName, releaseDate, genre, image);
             band.addAlbum(album);
             albumMap.put(id, album);
 
