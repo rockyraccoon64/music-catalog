@@ -38,18 +38,21 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         setVisible(true);
     }
 
-    public void showTopPanel() {
+    public void showTopPanel(SQLItem item) {
         JPanel topPanel = new JPanel(new BorderLayout());
-        //topPanel.setPreferredSize(new Dimension(APP_WIDTH, 75));
         topPanel.setOpaque(false);
 
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setOpaque(false);
+        if (item != SQLItem.BANDS) {
+            JPanel buttonPanel = new JPanel();
+            buttonPanel.setOpaque(false);
+            buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
 
-        JButton backButton = new JButton("< назад");
-        backButton.setPreferredSize(new Dimension(150, 20));
-        buttonPanel.add(backButton);
-        topPanel.add(buttonPanel, BorderLayout.SOUTH);
+            JButton backButton = new JButton("< назад");
+            backButton.setPreferredSize(new Dimension(150, 20));
+            buttonPanel.add(backButton);
+            topPanel.add(buttonPanel, BorderLayout.SOUTH);
+            backButton.addActionListener(new BackButtonListener(item));
+        }
 
         JLabel mainLabel = new JLabel("Музыкальная база данных");
         mainLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -57,8 +60,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         topPanel.add(mainLabel, BorderLayout.CENTER);
         add(topPanel, BorderLayout.NORTH);
 
-        mainLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+        mainLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
     }
     public static void main(String[] args) {
         DataStorage.initialize();
@@ -113,6 +115,25 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         }
     }
 
+    public class BackButtonListener implements ActionListener {
+
+        private SQLItem m_item;
+
+        BackButtonListener(SQLItem item) {
+            m_item = item;
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            switch (m_item) {
+                case ALBUMS:
+                    showBandListPage();
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
     public class ImageButtonListener implements ActionListener {
 
         private SQLItem m_item;
@@ -151,7 +172,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
     public void showBandListPage() {
         getContentPane().removeAll();
-        showTopPanel();
+        showTopPanel(SQLItem.BANDS);
 
         DefaultListModel<Band> listModel = new DefaultListModel<>();
         Collection<DataItem> dataItems = DataStorage.getItems(SQLItem.BANDS);
@@ -180,7 +201,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
     public void showAlbumListPage(int bandID) {
         getContentPane().removeAll();
-        showTopPanel();
+        showTopPanel(SQLItem.ALBUMS);
 
         Band thisBand = (Band)DataStorage.getItemByID(SQLItem.BANDS, bandID);
 
