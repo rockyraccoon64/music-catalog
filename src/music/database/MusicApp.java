@@ -4,8 +4,6 @@ import music.database.items.*;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -40,16 +38,27 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         setVisible(true);
     }
 
-    public void addTopPanel() {
+    public void showTopPanel() {
         JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.setPreferredSize(new Dimension(APP_WIDTH, 75));
+        //topPanel.setPreferredSize(new Dimension(APP_WIDTH, 75));
         topPanel.setOpaque(false);
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setOpaque(false);
+
+        JButton backButton = new JButton("< назад");
+        backButton.setPreferredSize(new Dimension(150, 20));
+        buttonPanel.add(backButton);
+        topPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         JLabel mainLabel = new JLabel("Музыкальная база данных");
         mainLabel.setHorizontalAlignment(SwingConstants.CENTER);
         mainLabel.setFont(new Font("Arial", Font.BOLD, 30));
         topPanel.add(mainLabel, BorderLayout.CENTER);
         add(topPanel, BorderLayout.NORTH);
+
+        mainLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
     }
     public static void main(String[] args) {
         DataStorage.initialize();
@@ -142,7 +151,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
     public void showBandListPage() {
         getContentPane().removeAll();
-        addTopPanel();
+        showTopPanel();
 
         DefaultListModel<Band> listModel = new DefaultListModel<>();
         Collection<DataItem> dataItems = DataStorage.getItems(SQLItem.BANDS);
@@ -171,7 +180,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
     public void showAlbumListPage(int bandID) {
         getContentPane().removeAll();
-        addTopPanel();
+        showTopPanel();
 
         Band thisBand = (Band)DataStorage.getItemByID(SQLItem.BANDS, bandID);
 
