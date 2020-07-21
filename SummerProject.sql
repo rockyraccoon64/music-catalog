@@ -12,7 +12,7 @@ CREATE TABLE Bands (
     Name NVARCHAR(50) NOT NULL,
     YearOfFormation YEAR NOT NULL,
     YearOfDisbanding YEAR,
-    Photo BLOB,
+    Photo LONGBLOB,
     PRIMARY KEY (ID)
 );
 
@@ -45,7 +45,7 @@ CREATE TABLE Albums (
     Name NVARCHAR(100) NOT NULL,
     ReleaseDate DATE,
     Genre INT REFERENCES Genres (ID),
-    CoverImage BLOB,
+    CoverImage LONGBLOB,
     FOREIGN KEY (Band) REFERENCES Bands (ID) ON DELETE CASCADE,
     PRIMARY KEY (ID)
 );
