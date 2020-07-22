@@ -25,12 +25,13 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
     private static final int INFO_PANEL_WIDTH = APP_WIDTH / 3;
     private static final int INFO_PANEL_BORDER = 30;
     private byte[] IMAGE_PLACEHOLDER;
+    private JLabel m_imageLabel;
 
     public MusicApp() {
         setLayout(new BorderLayout());
 
         setTitle("Музыкальная база данных");
-        //setSize(APP_WIDTH, APP_HEIGHT);
+        setSize(APP_WIDTH, APP_HEIGHT);
         getContentPane().setBackground(BACKGROUND_COLOR);
 
         showBandList();
@@ -49,7 +50,6 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         }
 
         pack();
-        setSize(APP_WIDTH, APP_HEIGHT);
         setVisible(true);
     }
 
@@ -148,7 +148,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
                     showBandList();
                     break;
                 case ALBUMS:
-                    showBandPage(m_item.getID());
+                    showBandPage(((Album)m_item).getBand().getID());
                     break;
                 default:
                     break;
@@ -167,7 +167,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
             //TODO
             switch (m_item.getType()) {
                 case ALBUMS:
-                    showAlbumEditPage(m_item.getID());
+                    showAlbumEditPage((Album)m_item);
                     break;
                 case BANDS:
 
@@ -180,11 +180,9 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
     private class ImageButtonListener implements ActionListener {
         private DataItem m_dataItem;
-        private JLabel m_label;
 
-        ImageButtonListener(DataItem dataItem, JLabel label) {
+        ImageButtonListener(DataItem dataItem) {
             m_dataItem = dataItem;
-            m_label = label;
         }
 
         public void actionPerformed(ActionEvent e) {
@@ -198,7 +196,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
                             "Изображение загружено.",
                             "Загрузка изображения",
                             JOptionPane.INFORMATION_MESSAGE);
-                    refreshImage(m_label, (Album)m_dataItem);
+                    refreshImage((Album)m_dataItem);
                 }
                 catch (IOException ex) {
                     ex.printStackTrace();
@@ -211,14 +209,15 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         }
     }
 
-    private void showAlbumEditPage(int id) {
+    private void showAlbumEditPage(Album album) {
+        //TODO
         JDialog dialog = new JDialog(MusicApp.this, "Редактировать альбом");
         dialog.setLayout(new BoxLayout(dialog, Y_AXIS));
         Container contentPane = dialog.getContentPane();
 
         JButton imageButton = new JButton("Загрузить обложку");
-        //imageButton.addActionListener(new ImageButtonListener(album, imageLabel));
-        //infoPanel.add(imageButton);
+        imageButton.addActionListener(new ImageButtonListener(album));
+        contentPane.add(imageButton);
     }
 
     private void showBandList() {
@@ -261,9 +260,9 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         infoPanel.setPreferredSize(new Dimension(INFO_PANEL_WIDTH, APP_HEIGHT));
         infoPanel.setBorder(BorderFactory.createEmptyBorder(0, INFO_PANEL_BORDER, INFO_PANEL_BORDER, 0));
 
-        JLabel imageLabel = new JLabel();
-        refreshImage(imageLabel, thisBand);
-        infoPanel.add(imageLabel);
+        m_imageLabel = new JLabel();
+        refreshImage(thisBand);
+        infoPanel.add(m_imageLabel);
 
         JLabel bandDateLabel = new JLabel();
         short formYear = thisBand.getFormYear();
@@ -314,7 +313,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
         JButton imageButton = new JButton("Загрузить изображение");
         infoPanel.add(imageButton);
-        imageButton.addActionListener(new ImageButtonListener(thisBand, imageLabel));
+        imageButton.addActionListener(new ImageButtonListener(thisBand));
 
         add(listPanel, BorderLayout.CENTER);
     }
@@ -331,10 +330,10 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         infoPanel.setPreferredSize(new Dimension(INFO_PANEL_WIDTH, APP_HEIGHT));
         infoPanel.setBorder(BorderFactory.createEmptyBorder(0, INFO_PANEL_BORDER, INFO_PANEL_BORDER, 0));
 
-        JLabel imageLabel = new JLabel();
-        refreshImage(imageLabel, album);
+        m_imageLabel = new JLabel();
+        refreshImage(album);
 
-        infoPanel.add(imageLabel);
+        infoPanel.add(m_imageLabel);
 
         JLabel genreLabel = new JLabel("Жанр: " + album.getGenre().getName());
         setInfoPanelLabelStyle(genreLabel);
@@ -374,7 +373,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         add(listPanel, BorderLayout.CENTER);
     }
 
-    private void refreshImage(JLabel component, ImageContainer item) {
+    private void refreshImage(ImageContainer item) {
         byte[] imageByteArray = item.getImage();
         if (imageByteArray == null) {
             imageByteArray = IMAGE_PLACEHOLDER;
@@ -393,7 +392,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
                 scaledHeight = INFO_PANEL_WIDTH - INFO_PANEL_BORDER;
                 scaledWidth = (int)(width * ((double)scaledHeight / height));
             }
-            component.setIcon(new ImageIcon(
+            m_imageLabel.setIcon(new ImageIcon(
                     image.getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_SMOOTH)
             ));
         }
