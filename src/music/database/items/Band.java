@@ -56,7 +56,7 @@ public class Band extends DataItem implements ImageContainer {
     }
 
     public Short getDisbandYear() {
-        return m_disbandYear != 0 ? m_disbandYear : null;
+        return m_disbandYear;
     }
 
     public void setName(String name) {

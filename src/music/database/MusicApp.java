@@ -11,6 +11,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.TreeSet;
 
@@ -35,7 +36,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         addWindowListener(this);
 
 
-        File file = new File("beatles.jpg");
+        File file = new File("images/placeholder.png");
         try {
             FileInputStream input = new FileInputStream(file);
             IMAGE_PLACEHOLDER = input.readAllBytes();
@@ -232,10 +233,24 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         infoPanel.setBorder(BorderFactory.createEmptyBorder(0, INFO_PANEL_BORDER, INFO_PANEL_BORDER, 0));
 
         JLabel imageLabel = new JLabel();
-
         refreshImage(imageLabel, thisBand);
-
         infoPanel.add(imageLabel);
+
+        JLabel bandDateLabel = new JLabel();
+        short formYear = thisBand.getFormYear();
+        short disbandYear = thisBand.getDisbandYear();
+        StringBuilder sb = new StringBuilder("Годы активности: ");
+        sb.append(formYear);
+        sb.append("-");
+        if (disbandYear > 0) {
+            sb.append(disbandYear);
+        }
+        else {
+            sb.append("...");
+        }
+        bandDateLabel.setText(sb.toString());
+        setInfoPanelLabelStyle(bandDateLabel);
+        infoPanel.add(bandDateLabel);
 
         TreeSet<Musician> musicians = thisBand.getMusicians();
 
@@ -293,9 +308,13 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         infoPanel.add(imageLabel);
 
         JLabel genreLabel = new JLabel("Жанр: " + album.getGenre().getName());
-        genreLabel.setHorizontalAlignment(SwingConstants.CENTER);
         setInfoPanelLabelStyle(genreLabel);
         infoPanel.add(genreLabel);
+
+        LocalDate releaseDate = album.getReleaseDate();
+        JLabel releaseDateLabel = new JLabel("Дата выпуска: " + releaseDate.toString());
+        setInfoPanelLabelStyle(releaseDateLabel);
+        infoPanel.add(releaseDateLabel);
 
         add(infoPanel, BorderLayout.WEST);
 
@@ -348,7 +367,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
                 scaledWidth = (int)(width * ((double)scaledHeight / height));
             }
             component.setIcon(new ImageIcon(
-                    image.getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_DEFAULT)
+                    image.getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_SMOOTH)
             ));
         }
         catch (IOException ex) {
@@ -358,6 +377,27 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
     private static JLabel createMusicianLabel(Musician musician) {
         StringBuilder sb = new StringBuilder(musician.getName());
+
+        LocalDate birthDate = musician.getBirthDate();
+        LocalDate deathDate = musician.getDeathDate();
+
+        if (birthDate != null) {
+            sb.append(" (");
+            sb.append(birthDate.getYear());
+            sb.append("-");
+            if (deathDate != null) {
+                sb.append(deathDate.getYear());
+            }
+            else {
+                sb.append("...");
+            }
+            sb.append(")");
+        }
+        else if (deathDate != null) {
+            sb.append("(...-");
+            sb.append(deathDate.getYear());
+            sb.append(")");
+        }
 
         boolean isFirst = true;
 
