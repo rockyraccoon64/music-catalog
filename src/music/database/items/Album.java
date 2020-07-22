@@ -1,5 +1,7 @@
 package music.database.items;
 
+import music.database.SQLItem;
+
 import java.lang.ref.WeakReference;
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -14,7 +16,7 @@ public class Album extends DataItem implements ImageContainer {
     private TreeSet<Song> m_songs;
 
     public Album(int id, Band band, String name, LocalDate releaseDate, Genre genre, byte[] image) {
-        super(id);
+        super(id, SQLItem.ALBUMS);
         m_band = new WeakReference<>(band);
         m_name = name;
         m_releaseDate = releaseDate;

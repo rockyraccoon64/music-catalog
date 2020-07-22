@@ -1,5 +1,7 @@
 package music.database.items;
 
+import music.database.SQLItem;
+
 import java.lang.ref.WeakReference;
 
 public class Song extends DataItem {
@@ -8,7 +10,7 @@ public class Song extends DataItem {
     private int m_trackNo;
 
     public Song(int id, String name, Album album, int trackNo) {
-        super(id);
+        super(id, SQLItem.SONGS);
         m_name = name;
         m_album = new WeakReference<>(album);
         m_trackNo = trackNo;

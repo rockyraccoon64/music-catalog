@@ -15,6 +15,8 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.TreeSet;
 
+import static javax.swing.BoxLayout.Y_AXIS;
+
 public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
     private static final int APP_WIDTH = 1000;
@@ -51,11 +53,11 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         setVisible(true);
     }
 
-    private void showTopPanel(SQLItem item, int id) {
+    private void showTopPanel(DataItem item) {
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
 
-        if (item != SQLItem.BANDS) {
+        if (item != null) {
             JPanel buttonPanel = new JPanel();
             buttonPanel.setOpaque(false);
             buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
@@ -64,7 +66,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
             backButton.setPreferredSize(new Dimension(150, 20));
             buttonPanel.add(backButton);
             topPanel.add(buttonPanel, BorderLayout.SOUTH);
-            backButton.addActionListener(new BackButtonListener(item, id));
+            backButton.addActionListener(new BackButtonListener(item));
         }
 
         JLabel mainLabel = new JLabel("Музыкальная база данных");
@@ -134,21 +136,41 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
     }
 
     private class BackButtonListener implements ActionListener {
-        private SQLItem m_item;
-        private int m_id;
+        private DataItem m_item;
 
-        BackButtonListener(SQLItem item, int id) {
+        BackButtonListener(DataItem item) {
             m_item = item;
-            m_id = id;
         }
 
         public void actionPerformed(ActionEvent e) {
-            switch (m_item) {
-                case ALBUMS:
+            switch (m_item.getType()) {
+                case BANDS:
                     showBandList();
                     break;
-                case SONGS:
-                    showBandPage(m_id);
+                case ALBUMS:
+                    showBandPage(m_item.getID());
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    private class EditButtonListener implements ActionListener {
+        private final DataItem m_item;
+
+        EditButtonListener(DataItem item) {
+            m_item = item;
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            //TODO
+            switch (m_item.getType()) {
+                case ALBUMS:
+                    showAlbumEditPage(m_item.getID());
+                    break;
+                case BANDS:
+
                     break;
                 default:
                     break;
@@ -157,12 +179,10 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
     }
 
     private class ImageButtonListener implements ActionListener {
-        private SQLItem m_item;
         private DataItem m_dataItem;
         private JLabel m_label;
 
-        ImageButtonListener(SQLItem item, DataItem dataItem, JLabel label) {
-            m_item = item;
+        ImageButtonListener(DataItem dataItem, JLabel label) {
             m_dataItem = dataItem;
             m_label = label;
         }
@@ -173,7 +193,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 File file = fc.getSelectedFile();
                 try {
-                    DataStorage.insertBlobFromFile(m_item, m_dataItem.getID(), file);
+                    DataStorage.insertBlobFromFile(m_dataItem.getType(), m_dataItem.getID(), file);
                     JOptionPane.showMessageDialog(MusicApp.this,
                             "Изображение загружено.",
                             "Загрузка изображения",
@@ -191,9 +211,19 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         }
     }
 
+    private void showAlbumEditPage(int id) {
+        JDialog dialog = new JDialog(MusicApp.this, "Редактировать альбом");
+        dialog.setLayout(new BoxLayout(dialog, Y_AXIS));
+        Container contentPane = dialog.getContentPane();
+
+        JButton imageButton = new JButton("Загрузить обложку");
+        //imageButton.addActionListener(new ImageButtonListener(album, imageLabel));
+        //infoPanel.add(imageButton);
+    }
+
     private void showBandList() {
         getContentPane().removeAll();
-        showTopPanel(SQLItem.BANDS, 0);
+        showTopPanel(null);
 
         DefaultListModel<Band> listModel = new DefaultListModel<>();
         Collection<DataItem> dataItems = DataStorage.getItems(SQLItem.BANDS);
@@ -222,13 +252,12 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
     private void showBandPage(int bandID) {
         getContentPane().removeAll();
-        showTopPanel(SQLItem.ALBUMS, 0);
-
         Band thisBand = (Band)DataStorage.getItemByID(SQLItem.BANDS, bandID);
+        showTopPanel(thisBand);
 
         JPanel infoPanel = new JPanel();
         infoPanel.setOpaque(false);
-        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+        infoPanel.setLayout(new BoxLayout(infoPanel, Y_AXIS));
         infoPanel.setPreferredSize(new Dimension(INFO_PANEL_WIDTH, APP_HEIGHT));
         infoPanel.setBorder(BorderFactory.createEmptyBorder(0, INFO_PANEL_BORDER, INFO_PANEL_BORDER, 0));
 
@@ -285,7 +314,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
         JButton imageButton = new JButton("Загрузить изображение");
         infoPanel.add(imageButton);
-        imageButton.addActionListener(new ImageButtonListener(SQLItem.BANDS, thisBand, imageLabel));
+        imageButton.addActionListener(new ImageButtonListener(thisBand, imageLabel));
 
         add(listPanel, BorderLayout.CENTER);
     }
@@ -294,11 +323,11 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         getContentPane().removeAll();
         Album album = (Album)DataStorage.getItemByID(SQLItem.ALBUMS, albumID);
         Band band = album.getBand();
-        showTopPanel(SQLItem.SONGS, band.getID());
+        showTopPanel(album);
 
         JPanel infoPanel = new JPanel();
         infoPanel.setOpaque(false);
-        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+        infoPanel.setLayout(new BoxLayout(infoPanel, Y_AXIS));
         infoPanel.setPreferredSize(new Dimension(INFO_PANEL_WIDTH, APP_HEIGHT));
         infoPanel.setBorder(BorderFactory.createEmptyBorder(0, INFO_PANEL_BORDER, INFO_PANEL_BORDER, 0));
 
@@ -339,10 +368,8 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         scrollPane.setPreferredSize(new Dimension(APP_WIDTH - INFO_PANEL_WIDTH, APP_HEIGHT));
         listPanel.add(scrollPane);
 
-
-        JButton imageButton = new JButton("Загрузить обложку");
-        imageButton.addActionListener(new ImageButtonListener(SQLItem.ALBUMS, album, imageLabel));
-        infoPanel.add(imageButton);
+        JButton editButton = new JButton("Редактировать...");
+        infoPanel.add(editButton);
 
         add(listPanel, BorderLayout.CENTER);
     }

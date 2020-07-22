@@ -1,5 +1,7 @@
 package music.database.items;
 
+import music.database.SQLItem;
+
 import java.lang.ref.WeakReference;
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -13,7 +15,7 @@ public class Musician extends DataItem {
     private TreeSet<Instrument> m_instruments;
 
     public Musician(int id, String name, Band band, LocalDate birthDate, LocalDate deathDate) {
-        super(id);
+        super(id, SQLItem.MUSICIANS);
         m_name = name;
         m_band = new WeakReference<>(band);
         m_birthDate = birthDate;

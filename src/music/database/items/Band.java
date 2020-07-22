@@ -1,5 +1,7 @@
 package music.database.items;
 
+import music.database.SQLItem;
+
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.Date;
@@ -14,7 +16,7 @@ public class Band extends DataItem implements ImageContainer {
     private TreeSet<Album> m_albums;
 
     public Band(int id, String name, short formYear, short disbandYear, byte[] image) {
-        super(id);
+        super(id, SQLItem.BANDS);
         m_name = name;
         m_formYear = formYear;
         m_disbandYear = disbandYear;

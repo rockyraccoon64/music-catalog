@@ -1,10 +1,12 @@
 package music.database.items;
 
+import music.database.SQLItem;
+
 public class Genre extends DataItem {
     private String m_name;
 
     public Genre(int id, String name) {
-        super(id);
+        super(id, SQLItem.GENRES);
         m_name = name;
     }
 
