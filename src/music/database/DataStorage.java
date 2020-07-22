@@ -1,14 +1,13 @@
 package music.database;
 
 import music.database.items.*;
+import music.database.updates.Update;
+import music.database.updates.UpdateContainer;
 
 import java.io.*;
 import java.sql.*;
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.TreeMap;
-import java.util.Vector;
+import java.util.*;
 
 public class DataStorage {
 
@@ -130,6 +129,85 @@ public class DataStorage {
 
             }
         }
+    }
+
+    public static void insertBlob(ImageContainer item, byte[] bytes) throws IOException {
+        String query = "UPDATE " + ITEM_NAMES.get(item.getType())
+                + " SET " + BLOB_NAMES.get(item.getType()) + " = ? "
+                + " WHERE ID = ?";
+        PreparedStatement pstmt = null;
+        try {
+            connection = DriverManager.getConnection(url, user, password);
+            pstmt = connection.prepareStatement(query);
+            pstmt.setBinaryStream(1, new ByteArrayInputStream(bytes));
+            pstmt.setInt(2, item.getID());
+            pstmt.executeUpdate();
+            item.setImage(bytes);
+        }
+        catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        finally {
+            try {
+                connection.close();
+                pstmt.close();
+            }
+            catch (SQLException ex) {
+
+            }
+        }
+    }
+
+    public static void update(UpdateContainer updateContainer) throws IOException {
+        StringBuilder sb = new StringBuilder("UPDATE ");
+        DataItem item = updateContainer.getItem();
+        Vector<Update> updates = updateContainer.getUpdates();
+
+        sb.append(ITEM_NAMES.get(item.getType()));
+        sb.append(" SET ");
+
+        boolean isFirst = true;
+
+        for (Update update : updates) {
+            if (isFirst) {
+                isFirst = false;
+            }
+            else sb.append(", ");
+            sb.append(update.getField());
+            sb.append(" = ?");
+        }
+
+        sb.append(" WHERE ID = ?");
+
+        PreparedStatement pstmt = null;
+        try {
+            connection = DriverManager.getConnection(url, user, password);
+            pstmt = connection.prepareStatement(sb.toString());
+
+            int fieldIdx = 1;
+            for (Update update : updates) {
+                update.prepareStatement(pstmt, fieldIdx);
+                fieldIdx++;
+            }
+            pstmt.executeUpdate();
+            refreshItem(item);
+        }
+        catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        finally {
+            try {
+                connection.close();
+                pstmt.close();
+            }
+            catch (SQLException ex) {
+
+            }
+        }
+    }
+
+    private static void refreshItem(DataItem item) {
+        //TODO
     }
 
     private static void initializeQueryMap() {

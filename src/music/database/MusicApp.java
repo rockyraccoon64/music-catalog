@@ -26,6 +26,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
     private static final int INFO_PANEL_BORDER = 30;
     private byte[] IMAGE_PLACEHOLDER;
     private JLabel m_imageLabel;
+    private byte[] m_newImage;
 
     public MusicApp() {
         setLayout(new BorderLayout());
@@ -212,12 +213,56 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
     private void showAlbumEditPage(Album album) {
         //TODO
         JDialog dialog = new JDialog(MusicApp.this, "Редактировать альбом");
-        dialog.setLayout(new BoxLayout(dialog, Y_AXIS));
         Container contentPane = dialog.getContentPane();
+        contentPane.setLayout(new BoxLayout(contentPane, Y_AXIS));
 
         JButton imageButton = new JButton("Загрузить обложку");
-        imageButton.addActionListener(new ImageButtonListener(album));
+        imageButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final JFileChooser fc = new JFileChooser();
+                int returnVal = fc.showOpenDialog(dialog);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    File file = fc.getSelectedFile();
+                    try {
+                        FileInputStream fis = new FileInputStream(file);
+                        m_newImage = fis.readAllBytes();
+                    }
+                    catch (IOException ex) {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(MusicApp.this,
+                                "Не удалось получить изображение.",
+                                "Ошибка",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        });
         contentPane.add(imageButton);
+
+        JPanel namePanel = new JPanel(new FlowLayout());
+        JLabel nameLabel = new JLabel("Название:");
+        namePanel.add(nameLabel);
+        JTextField nameText = new JTextField(album.getName());
+        namePanel.add(nameText);
+        contentPane.add(namePanel);
+
+        JButton updateButton = new JButton("Применить изменения");
+        updateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                if (m_newImage != null) {
+
+                    refreshImage(album);
+
+                }
+            }
+        });
+        contentPane.add(updateButton);
+
+        dialog.pack();
+        dialog.setVisible(true);
     }
 
     private void showBandList() {
@@ -368,6 +413,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         listPanel.add(scrollPane);
 
         JButton editButton = new JButton("Редактировать...");
+        editButton.addActionListener(new EditButtonListener(album));
         infoPanel.add(editButton);
 
         add(listPanel, BorderLayout.CENTER);

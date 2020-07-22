@@ -7,21 +7,19 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.TreeSet;
 
-public class Album extends DataItem implements ImageContainer {
+public class Album extends ImageContainer {
     private WeakReference<Band> m_band;
     private String m_name;
     private LocalDate m_releaseDate;
     private Genre m_genre;
-    private byte[] m_image;
     private TreeSet<Song> m_songs;
 
     public Album(int id, Band band, String name, LocalDate releaseDate, Genre genre, byte[] image) {
-        super(id, SQLItem.ALBUMS);
+        super(id, SQLItem.ALBUMS, image);
         m_band = new WeakReference<>(band);
         m_name = name;
         m_releaseDate = releaseDate;
         m_genre = genre;
-        m_image = image;
         m_songs = new TreeSet<>(new Comparator<Song>() {
             @Override
             public int compare(Song o1, Song o2) {
@@ -76,11 +74,4 @@ public class Album extends DataItem implements ImageContainer {
         return m_songs;
     }
 
-    public byte[] getImage() {
-        return m_image;
-    }
-
-    public void setImage(byte[] image) {
-        m_image = image;
-    }
 }
