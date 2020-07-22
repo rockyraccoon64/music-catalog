@@ -1,6 +1,9 @@
 package music.database;
 
 import music.database.items.*;
+import music.database.updates.BlobUpdate;
+import music.database.updates.Update;
+import music.database.updates.UpdateContainer;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -14,6 +17,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.TreeSet;
+import java.util.Vector;
 
 import static javax.swing.BoxLayout.Y_AXIS;
 
@@ -216,6 +220,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         Container contentPane = dialog.getContentPane();
         contentPane.setLayout(new BoxLayout(contentPane, Y_AXIS));
 
+        m_newImage = null;
         JButton imageButton = new JButton("Загрузить обложку");
         imageButton.addActionListener(new ActionListener() {
             @Override
@@ -251,11 +256,16 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         updateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                Vector<Update> updates = new Vector<>();
                 if (m_newImage != null) {
+                    updates.add(new BlobUpdate("CoverImage", m_newImage));
+                    try {
+                        DataStorage.update(new UpdateContainer(album, updates));
+                        refreshImage(album);
+                    }
+                    catch (IOException ex) {
 
-                    refreshImage(album);
-
+                    }
                 }
             }
         });

@@ -7,7 +7,7 @@ import java.sql.SQLException;
 public class BlobUpdate extends Update {
 
     public BlobUpdate(String field, byte[] value) {
-        super(UpdateType.BLOB, field, value);
+        super(field, value);
     }
 
     @Override

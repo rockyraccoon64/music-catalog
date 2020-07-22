@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 public class NStringUpdate extends Update {
     public NStringUpdate(String field, String value) {
-        super(UpdateType.STRING, field, value);
+        super(field, value);
     }
 
     @Override

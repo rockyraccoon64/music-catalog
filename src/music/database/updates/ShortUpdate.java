@@ -6,7 +6,7 @@ import java.sql.SQLException;
 public class ShortUpdate extends Update {
 
     public ShortUpdate(String field, short value) {
-        super(UpdateType.SHORT, field, value);
+        super(field, value);
     }
 
     @Override

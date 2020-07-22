@@ -6,7 +6,7 @@ import java.sql.SQLException;
 public class IntUpdate extends Update {
 
     public IntUpdate(String field, int value) {
-        super(UpdateType.INT, field, value);
+        super(field, value);
     }
 
     @Override

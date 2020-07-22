@@ -189,6 +189,7 @@ public class DataStorage {
                 update.prepareStatement(pstmt, fieldIdx);
                 fieldIdx++;
             }
+            pstmt.setInt(fieldIdx, item.getID());
             pstmt.executeUpdate();
             refreshItem(item);
         }
@@ -206,8 +207,39 @@ public class DataStorage {
         }
     }
 
-    private static void refreshItem(DataItem item) {
+    private static void refreshItem(DataItem item) throws SQLException {
         //TODO
+        statement = connection.createStatement();
+        // executing SELECT query
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM " + ITEM_NAMES.get(item.getType())
+            + " WHERE ID = " + item.getID());
+
+        while (resultSet.next()) {
+            switch (item.getType()) {
+                case ALBUMS:
+                    int bandID = resultSet.getInt("Band");
+                    String albumName = resultSet.getNString("Name");
+                    LocalDate releaseDate = makeDate(resultSet.getDate("ReleaseDate"));
+                    int genreID = resultSet.getInt("Genre");
+                    byte[] image = resultSet.getBytes("CoverImage");
+
+                    Genre genre = (Genre)getItemByID(SQLItem.GENRES, genreID);
+                    Band band = (Band)getItemByID(SQLItem.BANDS, bandID);
+
+                    Album album = (Album)item;
+                    album.setName(albumName);
+                    album.setReleaseDate(releaseDate);
+                    album.setGenre(genre);
+                    album.setBand(band);
+                    album.setImage(image);
+
+                    System.out.println("Обновлён альбом: " + album.getName());
+                    break;
+                default:
+                    break;
+            }
+
+        }
     }
 
     private static void initializeQueryMap() {
