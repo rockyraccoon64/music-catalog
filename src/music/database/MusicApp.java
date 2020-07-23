@@ -30,7 +30,6 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
     private static final int INFO_PANEL_BORDER = 30;
     private byte[] IMAGE_PLACEHOLDER;
     private JLabel m_imageLabel;
-    private byte[] m_newImage;
 
     public MusicApp() {
         setLayout(new BorderLayout());
@@ -184,92 +183,104 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
     }
 
     private class ImageButtonListener implements ActionListener {
-        private DataItem m_dataItem;
 
-        ImageButtonListener(DataItem dataItem) {
-            m_dataItem = dataItem;
+        private Container m_container;
+        private byte[] m_imageBytes;
+        private JLabel m_imageLabel;
+
+        public ImageButtonListener(Container container, JLabel imageLabel) {
+            m_container = container;
+            m_imageLabel = imageLabel;
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             final JFileChooser fc = new JFileChooser();
-            int returnVal = fc.showOpenDialog(MusicApp.this);
+            int returnVal = fc.showOpenDialog(m_container);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 File file = fc.getSelectedFile();
                 try {
-                    DataStorage.insertBlobFromFile(m_dataItem.getType(), m_dataItem.getID(), file);
-                    JOptionPane.showMessageDialog(MusicApp.this,
-                            "Изображение загружено.",
-                            "Загрузка изображения",
-                            JOptionPane.INFORMATION_MESSAGE);
-                    refreshImage((Album)m_dataItem);
+                    FileInputStream fis = new FileInputStream(file);
+                    m_imageBytes = fis.readAllBytes();
+                    refreshImage(m_imageBytes, m_imageLabel, 50);
                 }
                 catch (IOException ex) {
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(MusicApp.this,
-                            "Не удалось загрузить изображение.",
-                            "Загрузка изображения",
+                            "Не удалось получить изображение.",
+                            "Ошибка",
                             JOptionPane.ERROR_MESSAGE);
                 }
             }
+        }
+
+        public byte[] getImageBytes() {
+            return m_imageBytes;
         }
     }
 
     private void showAlbumEditPage(Album album) {
         //TODO
         JDialog dialog = new JDialog(MusicApp.this, "Редактировать альбом");
+        dialog.setBackground(BACKGROUND_COLOR);
         Container contentPane = dialog.getContentPane();
         contentPane.setLayout(new BoxLayout(contentPane, Y_AXIS));
 
-        m_newImage = null;
-        JButton imageButton = new JButton("Загрузить обложку");
-        imageButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final JFileChooser fc = new JFileChooser();
-                int returnVal = fc.showOpenDialog(dialog);
-                if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    File file = fc.getSelectedFile();
-                    try {
-                        FileInputStream fis = new FileInputStream(file);
-                        m_newImage = fis.readAllBytes();
-                    }
-                    catch (IOException ex) {
-                        ex.printStackTrace();
-                        JOptionPane.showMessageDialog(MusicApp.this,
-                                "Не удалось получить изображение.",
-                                "Ошибка",
-                                JOptionPane.ERROR_MESSAGE);
-                    }
-                }
-            }
-        });
-        contentPane.add(imageButton);
+        JPanel imagePanel = new JPanel(new FlowLayout());
+
+        JCheckBox imageCheckBox = new JCheckBox();
+        imageCheckBox.setSelected(false);
+        imagePanel.add(imageCheckBox);
+
+        JLabel imageLabel = new JLabel();
+        JButton imageButton = new JButton("Выбрать обложку");
+        ImageButtonListener imageButtonListener = new ImageButtonListener(dialog, imageLabel);
+        imageButton.addActionListener(imageButtonListener);
+        imagePanel.add(imageButton);
+        imagePanel.add(imageLabel);
+
+        contentPane.add(imagePanel);
 
         JPanel namePanel = new JPanel(new FlowLayout());
+        namePanel.setOpaque(false);
+
         JLabel nameLabel = new JLabel("Название:");
+        nameLabel.setOpaque(false);
         namePanel.add(nameLabel);
         JTextField nameText = new JTextField(album.getName());
         namePanel.add(nameText);
         contentPane.add(namePanel);
 
+        JPanel updatePanel = new JPanel(new FlowLayout());
         JButton updateButton = new JButton("Применить изменения");
         updateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Vector<Update> updates = new Vector<>();
-                if (m_newImage != null) {
-                    updates.add(new BlobUpdate("CoverImage", m_newImage));
+
+                byte[] image = imageButtonListener.getImageBytes();
+
+                if (imageCheckBox.isSelected() && image != null) {
+                    updates.add(new BlobUpdate("CoverImage", image));
+                }
+                if (!updates.isEmpty()) {
                     try {
                         DataStorage.update(new UpdateContainer(album, updates));
-                        refreshImage(album);
+                        if (image != null) {
+                            refreshImage(album.getImage(), m_imageLabel, INFO_PANEL_WIDTH - INFO_PANEL_BORDER);
+                        }
+                        JOptionPane.showMessageDialog(dialog, "Данные обновлены.",
+                                "Обновление успешно", JOptionPane.INFORMATION_MESSAGE);
                     }
                     catch (IOException ex) {
-
+                        JOptionPane.showMessageDialog(dialog, "Обновление не удалось.",
+                                "Обновление не удалось", JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }
         });
-        contentPane.add(updateButton);
+        updatePanel.add(updateButton);
+        contentPane.add(updatePanel);
 
         dialog.pack();
         dialog.setVisible(true);
@@ -316,7 +327,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         infoPanel.setBorder(BorderFactory.createEmptyBorder(0, INFO_PANEL_BORDER, INFO_PANEL_BORDER, 0));
 
         m_imageLabel = new JLabel();
-        refreshImage(thisBand);
+        refreshImage(thisBand.getImage(), m_imageLabel, INFO_PANEL_WIDTH - INFO_PANEL_BORDER);
         infoPanel.add(m_imageLabel);
 
         JLabel bandDateLabel = new JLabel();
@@ -368,7 +379,6 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
         JButton imageButton = new JButton("Загрузить изображение");
         infoPanel.add(imageButton);
-        imageButton.addActionListener(new ImageButtonListener(thisBand));
 
         add(listPanel, BorderLayout.CENTER);
     }
@@ -386,7 +396,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         infoPanel.setBorder(BorderFactory.createEmptyBorder(0, INFO_PANEL_BORDER, INFO_PANEL_BORDER, 0));
 
         m_imageLabel = new JLabel();
-        refreshImage(album);
+        refreshImage(album.getImage(), m_imageLabel, INFO_PANEL_WIDTH - INFO_PANEL_BORDER);
 
         infoPanel.add(m_imageLabel);
 
@@ -429,8 +439,8 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         add(listPanel, BorderLayout.CENTER);
     }
 
-    private void refreshImage(ImageContainer item) {
-        byte[] imageByteArray = item.getImage();
+    private void refreshImage(byte[] bytes, JLabel imageLabel, int maxDimension) {
+        byte[] imageByteArray = bytes;
         if (imageByteArray == null) {
             imageByteArray = IMAGE_PLACEHOLDER;
         }
@@ -441,14 +451,14 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
             int scaledWidth;
             int scaledHeight;
             if (width > height) {
-                scaledWidth = INFO_PANEL_WIDTH - INFO_PANEL_BORDER;
+                scaledWidth = maxDimension;
                 scaledHeight = (int)(height * ((double)scaledWidth / width));
             }
             else {
-                scaledHeight = INFO_PANEL_WIDTH - INFO_PANEL_BORDER;
+                scaledHeight = maxDimension;
                 scaledWidth = (int)(width * ((double)scaledHeight / height));
             }
-            m_imageLabel.setIcon(new ImageIcon(
+            imageLabel.setIcon(new ImageIcon(
                     image.getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_SMOOTH)
             ));
         }
