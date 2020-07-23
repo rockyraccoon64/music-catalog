@@ -15,9 +15,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.TreeSet;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.Flow;
 
 import static javax.swing.BoxLayout.Y_AXIS;
@@ -245,7 +243,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         c.gridx = 1;
         c.gridy = currentY;
         c.insets = padding;
-        contentPane.add(bandLabel);
+        contentPane.add(bandLabel, c);
 
         Vector<Band> bands = new Vector<>();
         Collection<DataItem> bandCollection = DataStorage.getItems(SQLItem.BANDS);
@@ -264,6 +262,13 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
         currentY++;
 
+        JCheckBox nameCheckBox = new JCheckBox();
+        nameCheckBox.setOpaque(false);
+        nameCheckBox.setSelected(false);
+        c.gridx = 0;
+        c.gridy = currentY;
+        contentPane.add(nameCheckBox, c);
+
         JLabel nameLabel = new JLabel("Название:");
         nameLabel.setOpaque(false);
         c.gridx = 1;
@@ -275,6 +280,35 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         c.gridx = 2;
         c.gridy = currentY;
         contentPane.add(nameText, c);
+
+        currentY++;
+
+        JCheckBox dateCheckBox = new JCheckBox();
+        dateCheckBox.setOpaque(false);
+        dateCheckBox.setSelected(false);
+        c.gridx = 0;
+        c.gridy = currentY;
+        contentPane.add(dateCheckBox, c);
+
+        JLabel dateLabel = new JLabel("Дата выпуска:");
+        dateLabel.setOpaque(false);
+        c.gridx = 1;
+        c.gridy = currentY;
+        contentPane.add(dateLabel, c);
+
+        Calendar calendar = Calendar.getInstance();
+        Date initDate = calendar.getTime();
+        calendar.add(Calendar.YEAR, -100);
+        Date earliestDate = calendar.getTime();
+        calendar.add(Calendar.YEAR, 101);
+        Date latestDate = calendar.getTime();
+        JSpinner dateSpinner = new JSpinner(
+                new SpinnerDateModel(initDate, earliestDate, latestDate, Calendar.DAY_OF_YEAR)
+        );
+        c.gridx = 2;
+        c.gridy = currentY;
+        contentPane.add(dateSpinner, c);
+        dateSpinner.setEditor(new JSpinner.DateEditor(dateSpinner, "dd.MM.yyyy"));
 
         currentY++;
 
@@ -304,13 +338,6 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         contentPane.add(imagePreview, c);
 
         currentY++;
-
-        JCheckBox nameCheckBox = new JCheckBox();
-        nameCheckBox.setOpaque(false);
-        imageCheckBox.setSelected(false);
-        c.gridx = 0;
-        c.gridy = currentY;
-        contentPane.add(nameCheckBox, c);
 
         JButton updateButton = new JButton("Применить изменения");
         updateButton.addActionListener(new ActionListener() {
