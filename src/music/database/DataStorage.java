@@ -425,11 +425,6 @@ public class DataStorage {
     }
 
     public static Collection<DataItem> getItems(SQLItem item) {
-        switch (item) {
-            case BANDS:
-                return MAPS.get(SQLItem.BANDS).values();
-            default:
-                return null;
-        }
+        return MAPS.get(item).values();
     }
 }

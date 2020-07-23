@@ -1,13 +1,14 @@
 package music.database;
 
 import music.database.items.Band;
+import music.database.items.DataItem;
 
 import javax.swing.*;
 import java.awt.*;
 
-class BandComboRenderer extends JLabel implements ListCellRenderer<Band> {
+class DataItemComboBoxRenderer extends JLabel implements ListCellRenderer<DataItem> {
 
-    public BandComboRenderer() {
+    public DataItemComboBoxRenderer() {
         setOpaque(true);
         setVerticalAlignment(CENTER);
         setPreferredSize(new Dimension(200, 20));
@@ -15,7 +16,7 @@ class BandComboRenderer extends JLabel implements ListCellRenderer<Band> {
 
     public Component getListCellRendererComponent(
             JList list,
-            Band value,
+            DataItem value,
             int index,
             boolean isSelected,
             boolean cellHasFocus) {

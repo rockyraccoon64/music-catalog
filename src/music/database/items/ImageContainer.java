@@ -2,7 +2,7 @@ package music.database.items;
 
 import music.database.SQLItem;
 
-public class ImageContainer extends DataItem {
+public abstract class ImageContainer extends DataItem {
     private byte[] m_image;
 
     ImageContainer(int id, SQLItem type, byte[] image) {
@@ -17,4 +17,6 @@ public class ImageContainer extends DataItem {
     public void setImage(byte[] image) {
         m_image = image;
     }
+
+    public abstract String getName();
 }

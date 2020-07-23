@@ -16,7 +16,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.concurrent.Flow;
 
 import static javax.swing.BoxLayout.Y_AXIS;
 
@@ -219,16 +218,15 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
     }
 
     private void showAlbumEditPage(Album album) {
-        //TODO
         JDialog dialog = new JDialog(MusicApp.this, "Редактировать альбом");
         Container contentPane = dialog.getContentPane();
         contentPane.setLayout(new GridBagLayout());
         contentPane.setBackground(BACKGROUND_COLOR);
         GridBagConstraints c = new GridBagConstraints();
 
-        Insets padding = new Insets(5, 5, 5, 5);
+        c.insets = new Insets(5, 5, 5, 5);
+        c.fill = GridBagConstraints.HORIZONTAL;
 
-        final double SECOND_CELL_WEIGHT = 0.7;
         int currentY = 0;
 
         JCheckBox bandCheckBox = new JCheckBox();
@@ -242,7 +240,6 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         bandLabel.setOpaque(false);
         c.gridx = 1;
         c.gridy = currentY;
-        c.insets = padding;
         contentPane.add(bandLabel, c);
 
         Vector<Band> bands = new Vector<>();
@@ -253,11 +250,10 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
         JComboBox<Band> bandComboBox = new JComboBox<>(bands);
         bandComboBox.setBackground(Color.WHITE);
-        bandComboBox.setRenderer(new BandComboRenderer());
+        bandComboBox.setRenderer(new DataItemComboBoxRenderer());
 
         c.gridx = 2;
         c.gridy = currentY;
-        c.fill = GridBagConstraints.HORIZONTAL;
         contentPane.add(bandComboBox, c);
 
         currentY++;
@@ -312,6 +308,34 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
         currentY++;
 
+        JCheckBox genreCheckBox = new JCheckBox();
+        genreCheckBox.setOpaque(false);
+        genreCheckBox.setSelected(false);
+        c.gridx = 0;
+        c.gridy = currentY;
+        contentPane.add(genreCheckBox, c);
+
+        JLabel genreLabel = new JLabel("Жанр:");
+        genreLabel.setOpaque(false);
+        c.gridx = 1;
+        c.gridy = currentY;
+        contentPane.add(genreLabel, c);
+
+        Vector<Genre> genres = new Vector<>();
+        Collection<DataItem> genreCollection = DataStorage.getItems(SQLItem.GENRES);
+        for (DataItem item : genreCollection) {
+            genres.add((Genre)item);
+        }
+
+        JComboBox<Genre> genreComboBox = new JComboBox(genres);
+        genreComboBox.setRenderer(new DataItemComboBoxRenderer());
+        genreComboBox.setBackground(Color.WHITE);
+        c.gridx = 2;
+        c.gridy = currentY;
+        contentPane.add(genreComboBox, c);
+
+        currentY++;
+
         JCheckBox imageCheckBox = new JCheckBox();
         imageCheckBox.setOpaque(false);
         imageCheckBox.setSelected(false);
@@ -329,13 +353,26 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         JButton imageButton = new JButton("Выбрать...");
         ImageButtonListener imageButtonListener = new ImageButtonListener(dialog, imagePreview);
         imageButton.addActionListener(imageButtonListener);
+
+        JPanel imagePanel = new JPanel(new GridBagLayout());
+        GridBagConstraints c_imagePanel = new GridBagConstraints();
+        imagePanel.setOpaque(false);
+
+        c_imagePanel.insets = new Insets(0, 5, 0, 5);
+        c_imagePanel.gridx = 0;
+        c_imagePanel.gridy = 0;
+        imagePanel.add(imageButton, c_imagePanel);
+
+        c_imagePanel.gridx = 1;
+        c_imagePanel.gridy = 0;
+        imagePanel.add(imagePreview, c_imagePanel);
         c.gridx = 2;
         c.gridy = currentY;
-        contentPane.add(imageButton, c);
+        contentPane.add(imagePanel, c);
 
-        c.gridx = 3;
-        c.gridy = currentY;
-        contentPane.add(imagePreview, c);
+        //c.gridx = 3;
+        //c.gridy = currentY;
+        //contentPane.add(imagePreview, c);
 
         currentY++;
 
@@ -345,8 +382,9 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
             public void actionPerformed(ActionEvent e) {
                 Vector<Update> updates = new Vector<>();
 
-                byte[] image = imageButtonListener.getImageBytes();
+                //TODO
 
+                byte[] image = imageButtonListener.getImageBytes();
                 if (imageCheckBox.isSelected() && image != null) {
                     updates.add(new BlobUpdate("CoverImage", image));
                 }
@@ -358,6 +396,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
                         }
                         JOptionPane.showMessageDialog(dialog, "Данные обновлены.",
                                 "Обновление успешно", JOptionPane.INFORMATION_MESSAGE);
+                        dialog.dispose();
                     }
                     catch (IOException ex) {
                         JOptionPane.showMessageDialog(dialog, "Обновление не удалось.",
@@ -371,7 +410,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         c.gridwidth = 2;
         contentPane.add(updateButton, c);
 
-        dialog.setPreferredSize(new Dimension(400, 300));
+        dialog.setPreferredSize(new Dimension(430, 300));
         dialog.pack();
         dialog.setVisible(true);
     }

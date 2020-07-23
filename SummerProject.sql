@@ -44,9 +44,10 @@ CREATE TABLE Albums (
     Band INT NOT NULL,
     Name NVARCHAR(100) NOT NULL,
     ReleaseDate DATE,
-    Genre INT REFERENCES Genres (ID),
+    Genre INT,
     CoverImage LONGBLOB,
     FOREIGN KEY (Band) REFERENCES Bands (ID) ON DELETE CASCADE,
+	FOREIGN KEY (Genre) REFERENCES Genres (ID) ON DELETE CASCADE,
     PRIMARY KEY (ID)
 );
 

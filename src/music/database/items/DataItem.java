@@ -2,7 +2,7 @@ package music.database.items;
 
 import music.database.SQLItem;
 
-public class DataItem {
+public abstract class DataItem {
     protected final int m_ID;
     protected final SQLItem m_type;
 
@@ -18,4 +18,6 @@ public class DataItem {
     public SQLItem getType() {
         return m_type;
     }
+
+    public abstract String getName();
 }
