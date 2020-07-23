@@ -228,6 +228,8 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         contentPane.setBackground(BACKGROUND_COLOR);
         GridBagConstraints c = new GridBagConstraints();
 
+        Insets padding = new Insets(5, 5, 5, 5);
+
         final double SECOND_CELL_WEIGHT = 0.7;
         int currentY = 0;
 
@@ -239,6 +241,11 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         contentPane.add(bandCheckBox, c);
 
         JLabel bandLabel = new JLabel("Группа:");
+        bandLabel.setOpaque(false);
+        c.gridx = 1;
+        c.gridy = currentY;
+        c.insets = padding;
+        contentPane.add(bandLabel);
 
         Vector<Band> bands = new Vector<>();
         Collection<DataItem> bandCollection = DataStorage.getItems(SQLItem.BANDS);
@@ -247,16 +254,27 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         }
 
         JComboBox<Band> bandComboBox = new JComboBox<>(bands);
+        bandComboBox.setBackground(Color.WHITE);
         bandComboBox.setRenderer(new BandComboRenderer());
 
-        JPanel bandPanel = new JPanel(new FlowLayout());
-        bandPanel.setOpaque(false);
-        bandPanel.add(bandLabel);
-        bandPanel.add(bandComboBox);
-        c.gridx = 1;
+        c.gridx = 2;
         c.gridy = currentY;
         c.fill = GridBagConstraints.HORIZONTAL;
-        contentPane.add(bandPanel, c);
+        contentPane.add(bandComboBox, c);
+
+        currentY++;
+
+        JLabel nameLabel = new JLabel("Название:");
+        nameLabel.setOpaque(false);
+        c.gridx = 1;
+        c.gridy = currentY;
+        contentPane.add(nameLabel, c);
+
+        JTextField nameText = new JTextField(album.getName());
+        nameText.setColumns(20);
+        c.gridx = 2;
+        c.gridy = currentY;
+        contentPane.add(nameText, c);
 
         currentY++;
 
@@ -267,19 +285,23 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         c.gridy = currentY;
         contentPane.add(imageCheckBox, c);
 
-        JPanel imagePanel = new JPanel(new FlowLayout());
-        imagePanel.setOpaque(false);
-        JLabel imageLabel = new JLabel();
-
-        JButton imageButton = new JButton("Выбрать обложку");
-        ImageButtonListener imageButtonListener = new ImageButtonListener(dialog, imageLabel);
-        imageButton.addActionListener(imageButtonListener);
-        imagePanel.add(imageButton);
-        imagePanel.add(imageLabel);
+        JLabel imageLabel = new JLabel("Обложка:");
+        imageLabel.setOpaque(false);
         c.gridx = 1;
         c.gridy = currentY;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        contentPane.add(imagePanel, c);
+        contentPane.add(imageLabel, c);
+
+        JLabel imagePreview = new JLabel();
+        JButton imageButton = new JButton("Выбрать...");
+        ImageButtonListener imageButtonListener = new ImageButtonListener(dialog, imagePreview);
+        imageButton.addActionListener(imageButtonListener);
+        c.gridx = 2;
+        c.gridy = currentY;
+        contentPane.add(imageButton, c);
+
+        c.gridx = 3;
+        c.gridy = currentY;
+        contentPane.add(imagePreview, c);
 
         currentY++;
 
@@ -289,23 +311,6 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         c.gridx = 0;
         c.gridy = currentY;
         contentPane.add(nameCheckBox, c);
-
-        JLabel nameLabel = new JLabel("Название:");
-        nameLabel.setOpaque(false);
-
-        JTextField nameText = new JTextField(album.getName());
-        nameText.setColumns(20);
-
-        JPanel namePanel = new JPanel(new FlowLayout());
-        namePanel.setOpaque(false);
-        namePanel.add(nameLabel);
-        namePanel.add(nameText);
-        c.gridx = 1;
-        c.gridy = currentY;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        contentPane.add(namePanel, c);
-
-        currentY++;
 
         JButton updateButton = new JButton("Применить изменения");
         updateButton.addActionListener(new ActionListener() {
@@ -336,7 +341,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         });
         c.gridx = 1;
         c.gridy = currentY;
-        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridwidth = 2;
         contentPane.add(updateButton, c);
 
         dialog.setPreferredSize(new Dimension(400, 300));

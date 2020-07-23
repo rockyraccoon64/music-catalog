@@ -7,11 +7,8 @@ import java.awt.*;
 
 class BandComboRenderer extends JLabel implements ListCellRenderer<Band> {
 
-    private final Color BACKGROUND_COLOR = Color.WHITE;
-
     public BandComboRenderer() {
-        setOpaque(false);
-        setBackground(BACKGROUND_COLOR);
+        setOpaque(true);
         setVerticalAlignment(CENTER);
         setPreferredSize(new Dimension(200, 20));
     }
