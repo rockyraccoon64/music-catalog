@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.TreeSet;
 import java.util.Vector;
+import java.util.concurrent.Flow;
 
 import static javax.swing.BoxLayout.Y_AXIS;
 
@@ -222,36 +223,54 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
     private void showAlbumEditPage(Album album) {
         //TODO
         JDialog dialog = new JDialog(MusicApp.this, "Редактировать альбом");
-        dialog.setBackground(BACKGROUND_COLOR);
         Container contentPane = dialog.getContentPane();
-        contentPane.setLayout(new BoxLayout(contentPane, Y_AXIS));
-
-        JPanel imagePanel = new JPanel(new FlowLayout());
+        contentPane.setLayout(new GridBagLayout());
+        contentPane.setBackground(BACKGROUND_COLOR);
+        GridBagConstraints c = new GridBagConstraints();
 
         JCheckBox imageCheckBox = new JCheckBox();
+        imageCheckBox.setOpaque(false);
         imageCheckBox.setSelected(false);
-        imagePanel.add(imageCheckBox);
+        c.gridx = 0;
+        c.gridy = 0;
+        contentPane.add(imageCheckBox, c);
 
+        JPanel imagePanel = new JPanel(new FlowLayout());
+        imagePanel.setOpaque(false);
         JLabel imageLabel = new JLabel();
+
         JButton imageButton = new JButton("Выбрать обложку");
         ImageButtonListener imageButtonListener = new ImageButtonListener(dialog, imageLabel);
         imageButton.addActionListener(imageButtonListener);
         imagePanel.add(imageButton);
         imagePanel.add(imageLabel);
+        c.gridx = 1;
+        c.gridy = 0;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        contentPane.add(imagePanel, c);
 
-        contentPane.add(imagePanel);
-
-        JPanel namePanel = new JPanel(new FlowLayout());
-        namePanel.setOpaque(false);
+        JCheckBox nameCheckBox = new JCheckBox();
+        nameCheckBox.setOpaque(false);
+        imageCheckBox.setSelected(false);
+        c.gridx = 0;
+        c.gridy = 1;
+        contentPane.add(nameCheckBox, c);
 
         JLabel nameLabel = new JLabel("Название:");
         nameLabel.setOpaque(false);
-        namePanel.add(nameLabel);
-        JTextField nameText = new JTextField(album.getName());
-        namePanel.add(nameText);
-        contentPane.add(namePanel);
 
-        JPanel updatePanel = new JPanel(new FlowLayout());
+        JTextField nameText = new JTextField(album.getName());
+        nameText.setColumns(20);
+
+        JPanel namePanel = new JPanel(new FlowLayout());
+        namePanel.setOpaque(false);
+        namePanel.add(nameLabel);
+        namePanel.add(nameText);
+        c.gridx = 1;
+        c.gridy = 1;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        contentPane.add(namePanel, c);
+
         JButton updateButton = new JButton("Применить изменения");
         updateButton.addActionListener(new ActionListener() {
             @Override
@@ -279,9 +298,12 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
                 }
             }
         });
-        updatePanel.add(updateButton);
-        contentPane.add(updatePanel);
+        c.gridx = 1;
+        c.gridy = 2;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        contentPane.add(updateButton, c);
 
+        dialog.setPreferredSize(new Dimension(400, 500));
         dialog.pack();
         dialog.setVisible(true);
     }
