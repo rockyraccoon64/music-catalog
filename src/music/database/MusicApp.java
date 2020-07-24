@@ -1,9 +1,7 @@
 package music.database;
 
 import music.database.items.*;
-import music.database.updates.BlobUpdate;
-import music.database.updates.Update;
-import music.database.updates.UpdateContainer;
+import music.database.updates.*;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -14,7 +12,9 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 
 import static javax.swing.BoxLayout.Y_AXIS;
@@ -217,8 +217,8 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         }
     }
 
-    private void showAlbumEditPage(Album album) {
-        JDialog dialog = new JDialog(MusicApp.this, "Редактировать альбом");
+    private void showSongAdditionDialog(JDialog mainDialog, Album album) {
+        JDialog dialog = new JDialog(mainDialog, "Добавить песню");
         Container contentPane = dialog.getContentPane();
         contentPane.setLayout(new GridBagLayout());
         contentPane.setBackground(BACKGROUND_COLOR);
@@ -228,6 +228,154 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         c.fill = GridBagConstraints.HORIZONTAL;
 
         int currentY = 0;
+
+        JLabel nameLabel = new JLabel("Название:");
+        nameLabel.setOpaque(false);
+        c.gridx = 0;
+        c.gridy = currentY;
+        contentPane.add(nameLabel, c);
+
+        JTextField nameText = new JTextField();
+        nameText.setPreferredSize(new Dimension(200, 20));
+        c.gridx = 1;
+        c.gridy = currentY;
+        contentPane.add(nameText, c);
+
+        currentY++;
+
+        JLabel trackNoLabel = new JLabel("Позиция в альбоме:");
+        c.gridx = 0;
+        c.gridy = currentY;
+        contentPane.add(trackNoLabel, c);
+
+        SpinnerNumberModel spinnerModel = new SpinnerNumberModel(1, 1, 1000, 1);
+        JSpinner trackNoSpinner = new JSpinner(spinnerModel);
+        c.gridx = 1;
+        c.gridy = currentY;
+        contentPane.add(trackNoSpinner, c);
+
+        currentY++;
+
+        JButton confirmButton = new JButton("Добавить");
+        confirmButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Vector<Update> updates = new Vector<>();
+                updates.add(new NStringUpdate("Name", nameText.getText()));
+                updates.add(new IntUpdate("Album", album.getID()));
+                updates.add(new IntUpdate("TrackNo", spinnerModel.getNumber().intValue()));
+
+                try {
+                    DataStorage.insert(SQLItem.SONGS, new UpdateContainer(null, updates));
+                    JOptionPane.showMessageDialog(dialog, "Песня добавлена.",
+                            "Добавление успешно", JOptionPane.INFORMATION_MESSAGE);
+                    dialog.dispose();
+                }
+                catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(dialog, "Обновление не удалось.",
+                            "Добавление не удалось", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        c.gridx = 0;
+        c.gridy = currentY;
+        c.gridwidth = 2;
+        contentPane.add(confirmButton, c);
+
+        dialog.setPreferredSize(new Dimension(400, 150));
+        dialog.pack();
+        dialog.setVisible(true);
+    }
+
+    private void showSongRemovalDialog(JDialog mainDialog, Album album) {
+
+    }
+
+    private void showAlbumEditPage(Album album) {
+        JDialog dialog = new JDialog(MusicApp.this, "Редактировать альбом");
+        dialog.addWindowListener(new WindowListener() {
+
+            @Override
+            public void windowClosing(WindowEvent e) {
+
+            }
+
+            @Override
+            public void windowOpened(WindowEvent e) {
+
+            }
+
+            @Override
+            public void windowClosed(WindowEvent e) {
+                showAlbumPage(album.getID());
+            }
+
+            @Override
+            public void windowIconified(WindowEvent e) {
+
+            }
+
+            @Override
+            public void windowDeiconified(WindowEvent e) {
+
+            }
+
+            @Override
+            public void windowActivated(WindowEvent e) {
+
+            }
+
+            @Override
+            public void windowDeactivated(WindowEvent e) {
+
+            }
+        });
+        Container contentPane = dialog.getContentPane();
+        contentPane.setLayout(new GridBagLayout());
+        contentPane.setBackground(BACKGROUND_COLOR);
+        GridBagConstraints c = new GridBagConstraints();
+
+        c.insets = new Insets(5, 5, 5, 5);
+        c.fill = GridBagConstraints.HORIZONTAL;
+
+        int currentY = 0;
+
+        JPanel songPanel = new JPanel(new GridBagLayout());
+        songPanel.setOpaque(false);
+        GridBagConstraints c_songPanel = new GridBagConstraints();
+        c_songPanel.insets = new Insets(0, 5, 0, 5);
+
+        JButton addSong = new JButton("Добавить песню");
+        addSong.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showSongAdditionDialog(dialog, album);
+            }
+        });
+        JButton removeSong = new JButton("Удалить песню...");
+        removeSong.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showSongRemovalDialog(dialog, album);
+            }
+        });
+
+        c_songPanel.gridx = 0;
+        c_songPanel.gridy = 0;
+        songPanel.add(addSong, c_songPanel);
+
+        c_songPanel.gridx = 1;
+        c_songPanel.gridy = 0;
+        songPanel.add(removeSong, c_songPanel);
+
+        c.gridx = 0;
+        c.gridy = currentY;
+        c.gridwidth = 3;
+        contentPane.add(songPanel, c);
+
+        currentY++;
+        c.gridwidth = 1;
 
         JCheckBox bandCheckBox = new JCheckBox();
         bandCheckBox.setOpaque(false);
@@ -249,6 +397,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         }
 
         JComboBox<Band> bandComboBox = new JComboBox<>(bands);
+        bandComboBox.setSelectedItem(album.getBand());
         bandComboBox.setBackground(Color.WHITE);
         bandComboBox.setRenderer(new DataItemComboBoxRenderer());
 
@@ -293,14 +442,16 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         contentPane.add(dateLabel, c);
 
         Calendar calendar = Calendar.getInstance();
+        calendar.setTime(Date.from(album.getReleaseDate().atStartOfDay(ZoneId.systemDefault()).toInstant()));
         Date initDate = calendar.getTime();
+        calendar.setTime(new Date());
         calendar.add(Calendar.YEAR, -100);
         Date earliestDate = calendar.getTime();
         calendar.add(Calendar.YEAR, 101);
         Date latestDate = calendar.getTime();
-        JSpinner dateSpinner = new JSpinner(
-                new SpinnerDateModel(initDate, earliestDate, latestDate, Calendar.DAY_OF_YEAR)
-        );
+        SpinnerDateModel dateModel = new SpinnerDateModel(initDate, earliestDate, latestDate, Calendar.DAY_OF_YEAR);
+
+        JSpinner dateSpinner = new JSpinner(dateModel);
         c.gridx = 2;
         c.gridy = currentY;
         contentPane.add(dateSpinner, c);
@@ -328,6 +479,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         }
 
         JComboBox<Genre> genreComboBox = new JComboBox(genres);
+        genreComboBox.setSelectedItem(album.getGenre());
         genreComboBox.setRenderer(new DataItemComboBoxRenderer());
         genreComboBox.setBackground(Color.WHITE);
         c.gridx = 2;
@@ -370,10 +522,6 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         c.gridy = currentY;
         contentPane.add(imagePanel, c);
 
-        //c.gridx = 3;
-        //c.gridy = currentY;
-        //contentPane.add(imagePreview, c);
-
         currentY++;
 
         JButton updateButton = new JButton("Применить изменения");
@@ -383,6 +531,18 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
                 Vector<Update> updates = new Vector<>();
 
                 //TODO
+                if (bandCheckBox.isSelected()) {
+                    updates.add(new IntUpdate("Band", bands.get(bandComboBox.getSelectedIndex()).getID()));
+                }
+                if (nameCheckBox.isSelected()) {
+                    updates.add(new NStringUpdate("Name", nameText.getText()));
+                }
+                if (dateCheckBox.isSelected()) {
+                    updates.add(new DateUpdate("ReleaseDate", dateModel.getDate()));
+                }
+                if (genreCheckBox.isSelected()) {
+                    updates.add(new IntUpdate("Genre", genres.get(genreComboBox.getSelectedIndex()).getID()));
+                }
 
                 byte[] image = imageButtonListener.getImageBytes();
                 if (imageCheckBox.isSelected() && image != null) {
@@ -391,17 +551,18 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
                 if (!updates.isEmpty()) {
                     try {
                         DataStorage.update(new UpdateContainer(album, updates));
-                        if (image != null) {
-                            refreshImage(album.getImage(), m_imageLabel, INFO_PANEL_WIDTH - INFO_PANEL_BORDER);
-                        }
                         JOptionPane.showMessageDialog(dialog, "Данные обновлены.",
                                 "Обновление успешно", JOptionPane.INFORMATION_MESSAGE);
                         dialog.dispose();
                     }
-                    catch (IOException ex) {
+                    catch (SQLException ex) {
                         JOptionPane.showMessageDialog(dialog, "Обновление не удалось.",
                                 "Обновление не удалось", JOptionPane.ERROR_MESSAGE);
                     }
+                }
+                else {
+                    JOptionPane.showMessageDialog(dialog, "Поля для обновления не выбраны.",
+                            "Ошибка обновления", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -410,7 +571,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         c.gridwidth = 2;
         contentPane.add(updateButton, c);
 
-        dialog.setPreferredSize(new Dimension(430, 300));
+        dialog.setPreferredSize(new Dimension(430, 350));
         dialog.pack();
         dialog.setVisible(true);
     }

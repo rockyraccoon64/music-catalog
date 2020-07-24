@@ -71,54 +71,45 @@ public class DataStorage {
         }
     }
 
-    public static void executeQuery(String query) {
-        try {
-            connection = DriverManager.getConnection(url, user, password);
-            statement = connection.createStatement();
-            statement.executeQuery(query);
-        }
-        catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-        finally {
-            try {
-                connection.close();
-            }
-            catch (SQLException ex) {
+    public static void insert(SQLItem item, UpdateContainer updateContainer) throws SQLException {
+        StringBuilder sb = new StringBuilder("INSERT INTO ");
+        sb.append(ITEM_NAMES.get(item));
+        sb.append(" (");
 
-            }
-        }
-    }
+        Vector<Update> updates = updateContainer.getUpdates();
 
-    public static void insertBlobFromFile(SQLItem item, int id, File file) throws IOException {
-        String query = "UPDATE " + ITEM_NAMES.get(item)
-                + " SET " + BLOB_NAMES.get(item) + " = ? "
-                + " WHERE ID = ?";
+        StringBuilder sb2 = new StringBuilder(") VALUES (");
+
+        boolean isFirst = true;
+        for (Update u : updates) {
+            if (isFirst) {
+                isFirst = false;
+            }
+            else {
+                sb.append(", ");
+                sb2.append(", ");
+            }
+
+            sb.append(u.getField());
+            sb2.append("?");
+        }
+        sb.append(sb2);
+        sb.append(");");
         PreparedStatement pstmt = null;
         try {
             connection = DriverManager.getConnection(url, user, password);
-            pstmt = connection.prepareStatement(query);
-            FileInputStream input = new FileInputStream(file);
-            byte[] bytes = input.readAllBytes();
-            pstmt.setBinaryStream(1, new ByteArrayInputStream(bytes));
-            pstmt.setInt(2, id);
-            pstmt.executeUpdate();
-            DataItem currentItem = getItemByID(item, id);
-
-            switch (item) {
-                case BANDS:
-                    Band band = (Band)currentItem;
-                    band.setImage(bytes);
-                    break;
-                case ALBUMS:
-                    Album album = (Album)currentItem;
-                    album.setImage(bytes);
-                default:
-                    break;
+            pstmt = connection.prepareStatement(sb.toString());
+            int index = 1;
+            for (Update u : updates) {
+                u.prepareStatement(pstmt, index);
+                index++;
             }
+            pstmt.executeUpdate();
+            // TODO Создать объект, соответствующий добавленному элементу
         }
         catch (SQLException ex) {
             ex.printStackTrace();
+            throw ex;
         }
         finally {
             try {
@@ -131,34 +122,7 @@ public class DataStorage {
         }
     }
 
-    public static void insertBlob(ImageContainer item, byte[] bytes) throws IOException {
-        String query = "UPDATE " + ITEM_NAMES.get(item.getType())
-                + " SET " + BLOB_NAMES.get(item.getType()) + " = ? "
-                + " WHERE ID = ?";
-        PreparedStatement pstmt = null;
-        try {
-            connection = DriverManager.getConnection(url, user, password);
-            pstmt = connection.prepareStatement(query);
-            pstmt.setBinaryStream(1, new ByteArrayInputStream(bytes));
-            pstmt.setInt(2, item.getID());
-            pstmt.executeUpdate();
-            item.setImage(bytes);
-        }
-        catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-        finally {
-            try {
-                connection.close();
-                pstmt.close();
-            }
-            catch (SQLException ex) {
-
-            }
-        }
-    }
-
-    public static void update(UpdateContainer updateContainer) throws IOException {
+    public static void update(UpdateContainer updateContainer) throws SQLException {
         StringBuilder sb = new StringBuilder("UPDATE ");
         DataItem item = updateContainer.getItem();
         Vector<Update> updates = updateContainer.getUpdates();
@@ -195,6 +159,7 @@ public class DataStorage {
         }
         catch (SQLException ex) {
             ex.printStackTrace();
+            throw ex;
         }
         finally {
             try {
@@ -210,7 +175,6 @@ public class DataStorage {
     private static void refreshItem(DataItem item) throws SQLException {
         //TODO
         statement = connection.createStatement();
-        // executing SELECT query
         ResultSet resultSet = statement.executeQuery("SELECT * FROM " + ITEM_NAMES.get(item.getType())
             + " WHERE ID = " + item.getID());
 

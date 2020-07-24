@@ -47,6 +47,9 @@ public class Album extends ImageContainer {
     }
 
     public void setBand(Band band) {
+        Band currentBand = m_band.get();
+        currentBand.removeAlbum(this);
+        band.addAlbum(this);
         m_band = new WeakReference<>(band);
     }
 
