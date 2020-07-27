@@ -46,7 +46,7 @@ public class Band extends ImageContainer {
     }
 
     public Vector<Album> getAlbums() {
-        Collection<DataItem> albumCollection = DataStorage.getItems(SQLItem.ALBUMS);
+        Vector<DataItem> albumCollection = new Vector<>(DataStorage.getItems(SQLItem.ALBUMS));
         albumCollection.removeIf(item -> {
             Album album = (Album)item;
             return album.getBand().getID() != getID();
@@ -59,7 +59,7 @@ public class Band extends ImageContainer {
     }
 
     public Vector<Musician> getMusicians() {
-        Collection<DataItem> musicianCollection = DataStorage.getItems(SQLItem.MUSICIANS);
+        Vector<DataItem> musicianCollection = new Vector<>(DataStorage.getItems(SQLItem.MUSICIANS));
         musicianCollection.removeIf(item -> {
             Musician musician = (Musician)item;
             return musician.getBand().getID() != getID();

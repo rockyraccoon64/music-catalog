@@ -931,7 +931,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         c.gridwidth = 2;
         contentPane.add(updateButton, c);
 
-        dialog.setPreferredSize(new Dimension(430, 300));
+        dialog.setPreferredSize(new Dimension(430, 325));
         dialog.pack();
         dialog.setVisible(true);
     }

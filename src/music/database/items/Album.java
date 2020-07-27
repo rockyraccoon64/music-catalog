@@ -55,7 +55,7 @@ public class Album extends ImageContainer implements Comparable<Album> {
     }
 
     public Vector<Song> getSongs() {
-        Collection<DataItem> songCollection = DataStorage.getItems(SQLItem.SONGS);
+        Vector<DataItem> songCollection = new Vector<>(DataStorage.getItems(SQLItem.SONGS));
         songCollection.removeIf(item -> {
             Song song = (Song)item;
             return song.getAlbum().getID() != getID();
