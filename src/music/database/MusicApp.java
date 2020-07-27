@@ -455,8 +455,13 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         c.gridy = currentY;
         contentPane.add(dateLabel, c);
 
+        LocalDate releaseDate = album.getReleaseDate();
+        if (releaseDate == null) {
+            releaseDate = LocalDate.now();
+        }
+
         Calendar calendar = Calendar.getInstance();
-        calendar.setTime(Date.from(album.getReleaseDate().atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        calendar.setTime(Date.from(releaseDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
         Date initDate = calendar.getTime();
         calendar.setTime(new Date());
         calendar.add(Calendar.YEAR, -100);
@@ -544,7 +549,6 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
             public void actionPerformed(ActionEvent e) {
                 Vector<Update> updates = new Vector<>();
 
-                //TODO
                 if (bandCheckBox.isSelected()) {
                     updates.add(new IntUpdate("Band", bands.get(bandComboBox.getSelectedIndex()).getID()));
                 }
@@ -658,11 +662,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         add(infoPanel, BorderLayout.WEST);
 
         DefaultListModel<Album> listModel = new DefaultListModel<>();
-        //Collection<DataItem> albums = DataStorage.getItems(SQLItem.ALBUMS);
-        //albums.removeIf(item -> ((Album)item).getBand().getID() == bandID);
-
         Vector<Album> albums = thisBand.getAlbums();
-
         for (Album album : albums) {
             listModel.addElement(album);
         }
@@ -681,10 +681,267 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         scrollPane.setPreferredSize(new Dimension(APP_WIDTH - INFO_PANEL_WIDTH, APP_HEIGHT));
         listPanel.add(scrollPane);
 
-        JButton imageButton = new JButton("Загрузить изображение");
-        infoPanel.add(imageButton);
+        JButton editButton = new JButton("Редактировать...");
+        editButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showBandEditDialog(bandID);
+            }
+        });
+        infoPanel.add(editButton);
 
         add(listPanel, BorderLayout.CENTER);
+    }
+
+    private void showAlbumRemovalDialog(JDialog mainDialog, int bandID) {
+        //TODO
+    }
+
+    private void showAlbumAdditionDialog(JDialog mainDialog, int bandID) {
+        //TODO
+    }
+
+    private void showBandEditDialog(int bandID) {
+        Band band = (Band) DataStorage.getItemByID(SQLItem.BANDS, bandID);
+        JDialog dialog = new JDialog(MusicApp.this, "Редактировать группу");
+        Container contentPane = dialog.getContentPane();
+        contentPane.setLayout(new GridBagLayout());
+        contentPane.setBackground(BACKGROUND_COLOR);
+        GridBagConstraints c = new GridBagConstraints();
+
+        c.insets = new Insets(5, 5, 5, 5);
+        c.fill = GridBagConstraints.HORIZONTAL;
+
+        int currentY = 0;
+
+        JPanel musicianPanel = new JPanel(new GridBagLayout());
+        musicianPanel.setOpaque(false);
+        GridBagConstraints c_musicianPanel = new GridBagConstraints();
+        c_musicianPanel.insets = new Insets(0, 5, 0, 5);
+
+        JButton addMusician = new JButton("Добавить музыканта...");
+        addMusician.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showMusicianAdditionDialog(dialog, bandID);
+            }
+        });
+        JButton removeMusician = new JButton("Удалить музыканта...");
+        removeMusician.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showMusicianRemovalDialog(dialog, bandID);
+            }
+        });
+
+        c_musicianPanel.gridx = 0;
+        c_musicianPanel.gridy = 0;
+        musicianPanel.add(addMusician, c_musicianPanel);
+
+        c_musicianPanel.gridx = 1;
+        c_musicianPanel.gridy = 0;
+        musicianPanel.add(removeMusician, c_musicianPanel);
+
+        c.gridx = 0;
+        c.gridy = currentY;
+        c.gridwidth = 3;
+        contentPane.add(musicianPanel, c);
+
+        currentY++;
+
+        JPanel albumPanel = new JPanel(new GridBagLayout());
+        albumPanel.setOpaque(false);
+        GridBagConstraints c_albumPanel = new GridBagConstraints();
+        c_albumPanel.insets = new Insets(0, 5, 0, 5);
+
+        JButton addAlbum = new JButton("Добавить альбом...");
+        addAlbum.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showAlbumAdditionDialog(dialog, bandID);
+            }
+        });
+        JButton removeAlbum = new JButton("Удалить альбом...");
+        removeAlbum.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showAlbumRemovalDialog(dialog, bandID);
+            }
+        });
+
+        c_albumPanel.gridx = 0;
+        c_albumPanel.gridy = 0;
+        albumPanel.add(addAlbum, c_albumPanel);
+
+        c_albumPanel.gridx = 1;
+        c_albumPanel.gridy = 0;
+        albumPanel.add(removeAlbum, c_albumPanel);
+
+        c.gridx = 0;
+        c.gridy = currentY;
+        c.gridwidth = 3;
+        contentPane.add(albumPanel, c);
+
+        currentY++;
+
+        c.gridwidth = 1;
+
+        JCheckBox nameCheckBox = new JCheckBox();
+        nameCheckBox.setOpaque(false);
+        nameCheckBox.setSelected(false);
+        c.gridx = 0;
+        c.gridy = currentY;
+        contentPane.add(nameCheckBox, c);
+
+        JLabel nameLabel = new JLabel("Название:");
+        nameLabel.setOpaque(false);
+        c.gridx = 1;
+        c.gridy = currentY;
+        contentPane.add(nameLabel, c);
+
+        JTextField nameText = new JTextField(band.getName());
+        nameText.setColumns(20);
+        c.gridx = 2;
+        c.gridy = currentY;
+        contentPane.add(nameText, c);
+
+        currentY++;
+
+        JCheckBox formDateCheckBox = new JCheckBox();
+        formDateCheckBox.setOpaque(false);
+        formDateCheckBox.setSelected(false);
+        c.gridx = 0;
+        c.gridy = currentY;
+        contentPane.add(formDateCheckBox, c);
+
+        JLabel formDateLabel = new JLabel("Год формирования:");
+        formDateLabel.setOpaque(false);
+        c.gridx = 1;
+        c.gridy = currentY;
+        contentPane.add(formDateLabel, c);
+
+        int currentYear = LocalDate.now().getYear();
+        SpinnerNumberModel formDateModel = new SpinnerNumberModel(
+                band.getFormYear(), 1900, currentYear, 1
+        );
+        JSpinner formDateSpinner = new JSpinner(formDateModel);
+        c.gridx = 2;
+        c.gridy = currentY;
+        contentPane.add(formDateSpinner, c);
+
+        currentY++;
+
+        JCheckBox disbandDateCheckBox = new JCheckBox();
+        disbandDateCheckBox.setOpaque(false);
+        disbandDateCheckBox.setSelected(false);
+        c.gridx = 0;
+        c.gridy = currentY;
+        contentPane.add(disbandDateCheckBox, c);
+
+        JLabel disbandDateLabel = new JLabel("Год распада:");
+        disbandDateLabel.setOpaque(false);
+        c.gridx = 1;
+        c.gridy = currentY;
+        contentPane.add(disbandDateLabel, c);
+
+        int disbandYear = band.getDisbandYear() > 0 ? band.getDisbandYear() : currentYear;
+
+        SpinnerNumberModel disbandDateModel = new SpinnerNumberModel(
+                disbandYear, 1900, currentYear, 1
+        );
+        JSpinner disbandDateSpinner = new JSpinner(disbandDateModel);
+        c.gridx = 2;
+        c.gridy = currentY;
+        contentPane.add(disbandDateSpinner, c);
+
+        currentY++;
+
+        JCheckBox imageCheckBox = new JCheckBox();
+        imageCheckBox.setOpaque(false);
+        imageCheckBox.setSelected(false);
+        c.gridx = 0;
+        c.gridy = currentY;
+        contentPane.add(imageCheckBox, c);
+
+        JLabel imageLabel = new JLabel("Фотография:");
+        imageLabel.setOpaque(false);
+        c.gridx = 1;
+        c.gridy = currentY;
+        contentPane.add(imageLabel, c);
+
+        JLabel imagePreview = new JLabel();
+        JButton imageButton = new JButton("Выбрать...");
+        ImageButtonListener imageButtonListener = new ImageButtonListener(dialog, imagePreview);
+        imageButton.addActionListener(imageButtonListener);
+
+        JPanel imagePanel = new JPanel(new GridBagLayout());
+        GridBagConstraints c_imagePanel = new GridBagConstraints();
+        imagePanel.setOpaque(false);
+
+        c_imagePanel.insets = new Insets(0, 5, 0, 5);
+        c_imagePanel.gridx = 0;
+        c_imagePanel.gridy = 0;
+        imagePanel.add(imageButton, c_imagePanel);
+
+        c_imagePanel.gridx = 1;
+        c_imagePanel.gridy = 0;
+        imagePanel.add(imagePreview, c_imagePanel);
+        c.gridx = 2;
+        c.gridy = currentY;
+        contentPane.add(imagePanel, c);
+
+        currentY++;
+
+        JButton updateButton = new JButton("Применить изменения");
+        updateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Vector<Update> updates = new Vector<>();
+
+                //TODO
+
+
+                byte[] image = imageButtonListener.getImageBytes();
+                if (imageCheckBox.isSelected() && image != null) {
+                    updates.add(new BlobUpdate("Photo", image));
+                }
+                if (!updates.isEmpty()) {
+                    try {
+                        DataStorage.update(new UpdateContainer(band, updates));
+                        JOptionPane.showMessageDialog(dialog, "Данные обновлены.",
+                                "Обновление успешно", JOptionPane.INFORMATION_MESSAGE);
+                        showAlbumPage(band.getID());
+                        dialog.dispose();
+                    }
+                    catch (SQLException ex) {
+                        JOptionPane.showMessageDialog(dialog, "Обновление не удалось.",
+                                "Обновление не удалось", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+                else {
+                    JOptionPane.showMessageDialog(dialog, "Поля для обновления не выбраны.",
+                            "Ошибка обновления", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        c.gridx = 1;
+        c.gridy = currentY;
+        c.gridwidth = 2;
+        contentPane.add(updateButton, c);
+
+        dialog.setPreferredSize(new Dimension(430, 300));
+        dialog.pack();
+        dialog.setVisible(true);
+    }
+
+    private void showMusicianAdditionDialog(JDialog dialog, int bandID) {
+        //TODO
+    }
+
+    private void showMusicianRemovalDialog(JDialog dialog, int bandID) {
+        //TODO
     }
 
     private void showAlbumPage(int albumID) {
