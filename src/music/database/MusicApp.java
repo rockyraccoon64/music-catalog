@@ -288,7 +288,56 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
     }
 
     private void showSongRemovalDialog(JDialog mainDialog, Album album) {
+        JDialog dialog = new JDialog(mainDialog, "Удалить песню");
+        Container contentPane = dialog.getContentPane();
+        contentPane.setLayout(new GridBagLayout());
+        contentPane.setBackground(BACKGROUND_COLOR);
+        GridBagConstraints c = new GridBagConstraints();
 
+        c.insets = new Insets(5, 5, 5, 5);
+        c.fill = GridBagConstraints.HORIZONTAL;
+
+        int currentY = 0;
+
+        JLabel songLabel = new JLabel("Выберите песню:");
+        songLabel.setOpaque(false);
+        c.gridx = 0;
+        c.gridy = currentY;
+        contentPane.add(songLabel, c);
+
+        Vector<Song> songs = new Vector(album.getSongs());
+        JComboBox<Song> songComboBox = new JComboBox<>(songs);
+        songComboBox.setRenderer(new DataItemComboBoxRenderer());
+        c.gridx = 1;
+        c.gridy = currentY;
+        contentPane.add(songComboBox, c);
+
+        currentY++;
+
+        JButton removeButton = new JButton("Удалить песню");
+        removeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    DataStorage.delete(SQLItem.SONGS, songs.get(songComboBox.getSelectedIndex()).getID());
+                    JOptionPane.showMessageDialog(dialog, "Песня удалена.",
+                            "Удаление успешно", JOptionPane.INFORMATION_MESSAGE);
+                    dialog.dispose();
+                }
+                catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(dialog, "Удаление не удалось.",
+                            "Ошибка при удалении", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        c.gridx = 0;
+        c.gridy = currentY;
+        c.gridwidth = 2;
+        contentPane.add(removeButton, c);
+
+        dialog.setPreferredSize(new Dimension(400, 150));
+        dialog.pack();
+        dialog.setVisible(true);
     }
 
     private void showAlbumEditPage(Album album) {

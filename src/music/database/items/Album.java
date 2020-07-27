@@ -1,6 +1,7 @@
 package music.database.items;
 
 import music.database.SQLItem;
+import music.database.WeakSet;
 
 import java.lang.ref.WeakReference;
 import java.time.LocalDate;
@@ -12,7 +13,6 @@ public class Album extends ImageContainer {
     private String m_name;
     private LocalDate m_releaseDate;
     private Genre m_genre;
-    private TreeSet<Song> m_songs;
 
     public Album(int id, Band band, String name, LocalDate releaseDate, Genre genre, byte[] image) {
         super(id, SQLItem.ALBUMS, image);
@@ -20,14 +20,6 @@ public class Album extends ImageContainer {
         m_name = name;
         m_releaseDate = releaseDate;
         m_genre = genre;
-        m_songs = new TreeSet<>(new Comparator<Song>() {
-            @Override
-            public int compare(Song o1, Song o2) {
-                int trackNo1 = o1.getTrackNo();
-                int trackNo2 = o2.getTrackNo();
-                return trackNo1 - trackNo2;
-            }
-        });
     }
 
     public Band getBand() {
@@ -63,18 +55,6 @@ public class Album extends ImageContainer {
 
     public void setGenre(Genre genre) {
         m_genre = genre;
-    }
-
-    public void addSong(Song song) {
-        m_songs.add(song);
-    }
-
-    public void removeSong(Song song) {
-        m_songs.remove(song);
-    }
-
-    public TreeSet<Song> getSongs() {
-        return m_songs;
     }
 
 }

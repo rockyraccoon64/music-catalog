@@ -21,7 +21,6 @@ public class DataStorage {
     private static Statement statement;
 
     private static HashMap<SQLItem, TreeMap> MAPS = new HashMap<>();
-    private static final HashMap<SQLItem, String> QUERIES = new HashMap<>();
     private static final HashMap<SQLItem, String> ITEM_NAMES = new HashMap<>();
 
     public static void initialize() {
@@ -55,6 +54,34 @@ public class DataStorage {
         finally {
             try {
                 connection.close();
+            }
+            catch (SQLException ex) {
+
+            }
+        }
+    }
+
+    public static void delete(SQLItem item, int id) throws SQLException {
+        String query = "DELETE FROM " + ITEM_NAMES.get(item)
+            + " WHERE ID = ?";
+
+        PreparedStatement pstmt = null;
+        try {
+            connection = DriverManager.getConnection(url, user, password);
+            pstmt = connection.prepareStatement(query);
+            pstmt.setInt(1, id);
+            pstmt.executeUpdate();
+            // TODO Удалить объект
+            MAPS.get(item).remove(id);
+        }
+        catch (SQLException ex) {
+            ex.printStackTrace();
+            throw ex;
+        }
+        finally {
+            try {
+                connection.close();
+                pstmt.close();
             }
             catch (SQLException ex) {
 
