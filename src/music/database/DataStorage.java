@@ -72,7 +72,6 @@ public class DataStorage {
             pstmt = connection.prepareStatement(query);
             pstmt.setInt(1, id);
             pstmt.executeUpdate();
-            // TODO Удалить объект
             MAPS.get(item).remove(id);
         }
         catch (SQLException ex) {
@@ -124,7 +123,7 @@ public class DataStorage {
                 index++;
             }
             pstmt.executeUpdate();
-            // TODO Создать объект, соответствующий добавленному элементу
+            refreshData();
         }
         catch (SQLException ex) {
             ex.printStackTrace();
@@ -174,7 +173,8 @@ public class DataStorage {
             }
             pstmt.setInt(fieldIdx, item.getID());
             pstmt.executeUpdate();
-            refreshItem(item);
+            refreshData();
+            //refreshItem(item.getType(), item.getID());
         }
         catch (SQLException ex) {
             ex.printStackTrace();
@@ -191,38 +191,13 @@ public class DataStorage {
         }
     }
 
-    private static void refreshItem(DataItem item) throws SQLException {
+    private static void refreshItem(SQLItem item, int id) throws SQLException {
         //TODO
         statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery("SELECT * FROM " + ITEM_NAMES.get(item.getType())
-            + " WHERE ID = " + item.getID());
-
-        while (resultSet.next()) {
-            switch (item.getType()) {
-                case ALBUMS:
-                    int bandID = resultSet.getInt("Band");
-                    String albumName = resultSet.getNString("Name");
-                    LocalDate releaseDate = makeDate(resultSet.getDate("ReleaseDate"));
-                    int genreID = resultSet.getInt("Genre");
-                    byte[] image = resultSet.getBytes("CoverImage");
-
-                    Genre genre = (Genre)getItemByID(SQLItem.GENRES, genreID);
-                    Band band = (Band)getItemByID(SQLItem.BANDS, bandID);
-
-                    Album album = (Album)item;
-                    album.setName(albumName);
-                    album.setReleaseDate(releaseDate);
-                    album.setGenre(genre);
-                    album.setBand(band);
-                    album.setImage(image);
-
-                    System.out.println("Обновлён альбом: " + album.getName());
-                    break;
-                default:
-                    break;
-            }
-
-        }
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM " + ITEM_NAMES.get(item)
+            + " WHERE ID = " + id);
+        DataItem updatedItem = DataItemMaker.getInstance(item).make(resultSet);
+        MAPS.get(item).put(id, updatedItem);
     }
 
     private static void executeGetterQuery(SQLItem item) throws SQLException {

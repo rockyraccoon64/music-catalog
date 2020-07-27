@@ -169,7 +169,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
             //TODO
             switch (m_item.getType()) {
                 case ALBUMS:
-                    showAlbumEditPage((Album)m_item);
+                    showAlbumEditDialog((Album)m_item);
                     break;
                 case BANDS:
 
@@ -269,6 +269,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
                     DataStorage.insert(SQLItem.SONGS, new UpdateContainer(null, updates));
                     JOptionPane.showMessageDialog(dialog, "Песня добавлена.",
                             "Добавление успешно", JOptionPane.INFORMATION_MESSAGE);
+                    showAlbumPage(album.getID());
                     dialog.dispose();
                 }
                 catch (SQLException ex) {
@@ -322,6 +323,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
                     DataStorage.delete(SQLItem.SONGS, songs.get(songComboBox.getSelectedIndex()).getID());
                     JOptionPane.showMessageDialog(dialog, "Песня удалена.",
                             "Удаление успешно", JOptionPane.INFORMATION_MESSAGE);
+                    showAlbumPage(album.getID());
                     dialog.dispose();
                 }
                 catch (SQLException ex) {
@@ -340,45 +342,8 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         dialog.setVisible(true);
     }
 
-    private void showAlbumEditPage(Album album) {
+    private void showAlbumEditDialog(Album album) {
         JDialog dialog = new JDialog(MusicApp.this, "Редактировать альбом");
-        dialog.addWindowListener(new WindowListener() {
-
-            @Override
-            public void windowClosing(WindowEvent e) {
-
-            }
-
-            @Override
-            public void windowOpened(WindowEvent e) {
-
-            }
-
-            @Override
-            public void windowClosed(WindowEvent e) {
-                showAlbumPage(album.getID());
-            }
-
-            @Override
-            public void windowIconified(WindowEvent e) {
-
-            }
-
-            @Override
-            public void windowDeiconified(WindowEvent e) {
-
-            }
-
-            @Override
-            public void windowActivated(WindowEvent e) {
-
-            }
-
-            @Override
-            public void windowDeactivated(WindowEvent e) {
-
-            }
-        });
         Container contentPane = dialog.getContentPane();
         contentPane.setLayout(new GridBagLayout());
         contentPane.setBackground(BACKGROUND_COLOR);
@@ -602,6 +567,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
                         DataStorage.update(new UpdateContainer(album, updates));
                         JOptionPane.showMessageDialog(dialog, "Данные обновлены.",
                                 "Обновление успешно", JOptionPane.INFORMATION_MESSAGE);
+                        showAlbumPage(album.getID());
                         dialog.dispose();
                     }
                     catch (SQLException ex) {
