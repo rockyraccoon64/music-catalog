@@ -34,10 +34,7 @@ public class AlbumMaker extends DataItemMaker<Album> {
         Genre genre = (Genre)DataStorage.getItemByID(SQLItem.GENRES, genreID);
         Band band = (Band)DataStorage.getItemByID(SQLItem.BANDS, bandID);
 
-        Album album = new Album(id, band, albumName, releaseDate, genre, image);
-        band.addAlbum(album);
-
-        return album;
+        return new Album(id, band, albumName, releaseDate, genre, image);
     }
 
     @Override

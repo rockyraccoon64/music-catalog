@@ -1,14 +1,14 @@
 package music.database.items;
 
+import music.database.DataStorage;
 import music.database.SQLItem;
-import music.database.WeakSet;
 
 import java.lang.ref.WeakReference;
 import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.TreeSet;
+import java.util.Collection;
+import java.util.Vector;
 
-public class Album extends ImageContainer {
+public class Album extends ImageContainer implements Comparable<Album> {
     private WeakReference<Band> m_band;
     private String m_name;
     private LocalDate m_releaseDate;
@@ -39,9 +39,6 @@ public class Album extends ImageContainer {
     }
 
     public void setBand(Band band) {
-        Band currentBand = m_band.get();
-        currentBand.removeAlbum(this);
-        band.addAlbum(this);
         m_band = new WeakReference<>(band);
     }
 
@@ -57,4 +54,36 @@ public class Album extends ImageContainer {
         m_genre = genre;
     }
 
+    public Vector<Song> getSongs() {
+        Collection<DataItem> songCollection = DataStorage.getItems(SQLItem.SONGS);
+        songCollection.removeIf(item -> {
+            Song song = (Song)item;
+            return song.getAlbum().getID() != getID();
+        });
+        Vector<Song> songs = new Vector<>();
+        for (DataItem item : songCollection) {
+            songs.add((Song)item);
+        }
+        return songs;
+    }
+
+    @Override
+    public int compareTo(Album o) {
+        if (getBand().getID() != o.getBand().getID()) {
+            return 0;
+        }
+        LocalDate firstDate = getReleaseDate();
+        LocalDate secondDate = o.getReleaseDate();
+        int dateComparison = 0;
+        if (firstDate != null) {
+            if (secondDate != null) {
+                dateComparison = firstDate.compareTo(secondDate);
+            }
+            else dateComparison = -1;
+        }
+        else if (secondDate != null) {
+            dateComparison = 1;
+        }
+        return dateComparison == 0 ? getName().compareTo(o.getName()) : dateComparison;
+    }
 }

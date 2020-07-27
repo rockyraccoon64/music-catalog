@@ -28,10 +28,7 @@ public class SongMaker extends DataItemMaker<Song> {
         int trackNo = resultSet.getInt("TrackNo");
         Album album = (Album)DataStorage.getItemByID(SQLItem.ALBUMS, albumID);
 
-        Song song = new Song(id, songName, album, trackNo);
-        album.addSong(song);
-
-        return song;
+        return new Song(id, songName, album, trackNo);
     }
 
     @Override

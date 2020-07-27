@@ -2,7 +2,7 @@ package music.database.items;
 
 import music.database.SQLItem;
 
-public class Instrument extends DataItem {
+public class Instrument extends DataItem implements Comparable<Instrument> {
     private String m_name;
 
     public Instrument(int id, String name) {
@@ -16,5 +16,10 @@ public class Instrument extends DataItem {
 
     public void setName(String name) {
         m_name = name;
+    }
+
+    @Override
+    public int compareTo(Instrument o) {
+        return this.getName().compareTo(o.getName());
     }
 }

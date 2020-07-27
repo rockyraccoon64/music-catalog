@@ -30,10 +30,7 @@ public class MusicianMaker extends DataItemMaker<Musician> {
         int bandID = resultSet.getInt("Band");
         Band band = (Band) DataStorage.getItemByID(SQLItem.BANDS, bandID);
 
-        Musician musician = new Musician(id, musicianName, band, birthDate, deathDate);
-        band.addMusician(musician);
-
-        return musician;
+        return new Musician(id, musicianName, band, birthDate, deathDate);
     }
 
     @Override

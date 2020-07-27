@@ -305,7 +305,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         c.gridy = currentY;
         contentPane.add(songLabel, c);
 
-        Vector<Song> songs = new Vector(album.getSongs());
+        Vector<Song> songs = album.getSongs();
         JComboBox<Song> songComboBox = new JComboBox<>(songs);
         songComboBox.setRenderer(new DataItemComboBoxRenderer());
         c.gridx = 1;
@@ -685,8 +685,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         setInfoPanelLabelStyle(bandDateLabel);
         infoPanel.add(bandDateLabel);
 
-        TreeSet<Musician> musicians = thisBand.getMusicians();
-
+        Vector<Musician> musicians = thisBand.getMusicians();
         for (Musician musician : musicians) {
             infoPanel.add(createMusicianLabel(musician));
         }
@@ -696,7 +695,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         //Collection<DataItem> albums = DataStorage.getItems(SQLItem.ALBUMS);
         //albums.removeIf(item -> ((Album)item).getBand().getID() == bandID);
 
-        TreeSet<Album> albums = thisBand.getAlbums();
+        Vector<Album> albums = thisBand.getAlbums();
 
         for (Album album : albums) {
             listModel.addElement(album);
@@ -751,9 +750,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         add(infoPanel, BorderLayout.WEST);
 
         DefaultListModel<Song> listModel = new DefaultListModel<>();
-
-        TreeSet<Song> songs = album.getSongs();
-
+        Vector<Song> songs = album.getSongs();
         for (Song song : songs) {
             listModel.addElement(song);
         }

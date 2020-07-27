@@ -22,6 +22,7 @@ public class DataStorage {
 
     private static HashMap<SQLItem, TreeMap> MAPS = new HashMap<>();
     private static final HashMap<SQLItem, String> ITEM_NAMES = new HashMap<>();
+    private static HashMap<Integer, TreeSet<Integer>> MUSICIAN_INSTRUMENT_MAP = new HashMap<>();
 
     public static void initialize() {
         initializeItemNames();
@@ -46,7 +47,7 @@ public class DataStorage {
             executeGetterQuery(SQLItem.INSTRUMENTS);
             executeGetterQuery(SQLItem.MUSICIANS);
             executeGetterQuery(SQLItem.SONGS);
-            addInstruments();
+            connectInstruments();
         }
         catch (SQLException ex) {
             ex.printStackTrace();
@@ -243,7 +244,7 @@ public class DataStorage {
         }
     }
 
-    private static void addInstruments() throws SQLException {
+    private static void connectInstruments() throws SQLException {
         ResultSet resultSet = null;
         try {
             statement = connection.createStatement();
@@ -251,9 +252,15 @@ public class DataStorage {
             while (resultSet.next()) {
                 int musicianID = resultSet.getInt("MusicianID");
                 int instrumentID = resultSet.getInt("InstrumentID");
+
+                if (!MUSICIAN_INSTRUMENT_MAP.containsKey(musicianID)) {
+                    MUSICIAN_INSTRUMENT_MAP.put(musicianID, new TreeSet<>());
+                }
+                TreeSet<Integer> set = MUSICIAN_INSTRUMENT_MAP.get(musicianID);
+                set.add(instrumentID);
+
                 Musician musician = (Musician)getItemByID(SQLItem.MUSICIANS, musicianID);
                 Instrument instrument = (Instrument)getItemByID(SQLItem.INSTRUMENTS, instrumentID);
-                musician.addInstrument(instrument);
                 System.out.println("Добавлен инструмент " + instrument.getName() + " у музыканта " + musician.getName());
             }
         }
@@ -267,8 +274,6 @@ public class DataStorage {
                 try { resultSet.close(); } catch(SQLException se) { /*can't do anything */ }
             }
         }
-
-
     }
 
     public static LocalDate makeDate(java.sql.Date date) {
@@ -279,7 +284,10 @@ public class DataStorage {
         TreeMap<Integer, DataItem> map = MAPS.get(item);
         return map.get(id);
     }
-
+    public static Vector<Integer> getInstrumentIDs(Musician musician) {
+        TreeSet<Integer> set = MUSICIAN_INSTRUMENT_MAP.get(musician.getID());
+        return new Vector<>(set);
+    }
     public static Collection<DataItem> getItems(SQLItem item) {
         return MAPS.get(item).values();
     }

@@ -4,7 +4,7 @@ import music.database.SQLItem;
 
 import java.lang.ref.WeakReference;
 
-public class Song extends DataItem {
+public class Song extends DataItem implements Comparable<Song> {
     private String m_name;
     private WeakReference<Album> m_album;
     private int m_trackNo;
@@ -38,5 +38,10 @@ public class Song extends DataItem {
 
     public void setTrackNo(int trackNo) {
         m_trackNo = trackNo;
+    }
+
+    @Override
+    public int compareTo(Song o) {
+        return (this.getAlbum().getID() == o.getAlbum().getID()) ? this.getTrackNo() - o.getTrackNo() : 0;
     }
 }
