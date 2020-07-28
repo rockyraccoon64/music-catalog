@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
@@ -809,6 +810,159 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         dialog.setVisible(true);
     }
 
+    private void showMusicianEditDialog(JDialog mainDialog, int bandID) {
+        Band band = (Band) DataStorage.getItemByID(SQLItem.BANDS, bandID);
+        JDialog dialog = new JDialog(MusicApp.this, "Редактировать группу");
+        Container contentPane = dialog.getContentPane();
+        contentPane.setLayout(new GridBagLayout());
+        contentPane.setBackground(BACKGROUND_COLOR);
+        GridBagConstraints c = new GridBagConstraints();
+
+        c.insets = new Insets(5, 5, 5, 5);
+        c.fill = GridBagConstraints.HORIZONTAL;
+
+        int currentY = 0;
+
+        Vector<Musician> musicians = band.getMusicians();
+        JComboBox<Musician> musicianComboBox = new JComboBox<>(musicians);
+        musicianComboBox.setRenderer(new DataItemComboBoxRenderer());
+        c.gridx = 0;
+        c.gridy = currentY;
+        c.gridwidth = 3;
+        contentPane.add(musicianComboBox, c);
+
+        currentY++;
+
+        JPanel instrumentPanel = new JPanel(new GridBagLayout());
+        instrumentPanel.setOpaque(false);
+        GridBagConstraints c_instrPanel = new GridBagConstraints();
+        c_instrPanel.insets = new Insets(0, 5, 0, 5);
+
+        JButton addInstrumentButton = new JButton("Добавить инструмент...");
+        addInstrumentButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Musician selectedMusician = musicians.get(musicianComboBox.getSelectedIndex());
+                showInstrumentAdditionDialog(dialog, selectedMusician.getID());
+            }
+        });
+        c_instrPanel.gridx = 0;
+        c_instrPanel.gridy = 0;
+        instrumentPanel.add(addInstrumentButton, c_instrPanel);
+
+        JButton removeInstrumentButton = new JButton("Удалить инструмент...");
+        removeInstrumentButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Musician selectedMusician = musicians.get(musicianComboBox.getSelectedIndex());
+                showInstrumentRemovalDialog(dialog, selectedMusician.getID());
+            }
+        });
+        c_instrPanel.gridx = 1;
+        c_instrPanel.gridy = 0;
+        instrumentPanel.add(removeInstrumentButton, c_instrPanel);
+
+        c.gridx = 0;
+        c.gridy = currentY;
+        c.gridwidth = 3;
+        contentPane.add(instrumentPanel, c);
+
+        currentY++;
+        c.gridwidth = 1;
+
+        JCheckBox nameCheckBox = new JCheckBox();
+        nameCheckBox.setSelected(false);
+        nameCheckBox.setOpaque(false);
+        c.gridx = 0;
+        c.gridy = currentY;
+        contentPane.add(nameCheckBox, c);
+
+        JLabel newNameLabel = new JLabel("Имя:");
+        newNameLabel.setOpaque(false);
+        c.gridx = 1;
+        c.gridy = currentY;
+        contentPane.add(newNameLabel, c);
+
+        JTextField nameText = new JTextField();
+        c.gridx = 2;
+        c.gridy = currentY;
+        contentPane.add(nameText, c);
+
+        currentY++;
+
+        JCheckBox birthDateCheckBox = new JCheckBox();
+        birthDateCheckBox.setSelected(false);
+        birthDateCheckBox.setOpaque(false);
+        c.gridx = 0;
+        c.gridy = currentY;
+        contentPane.add(birthDateCheckBox, c);
+
+        JLabel birthDateLabel = new JLabel("Дата рождения:");
+        birthDateLabel.setOpaque(false);
+        c.gridx = 1;
+        c.gridy = currentY;
+        contentPane.add(birthDateLabel, c);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(Date.from(Instant.now()));
+        Date initDate = calendar.getTime();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.YEAR, -100);
+        Date earliestDate = calendar.getTime();
+        calendar.setTime(initDate);
+        Date latestDate = calendar.getTime();
+        SpinnerDateModel birthDateModel = new SpinnerDateModel(initDate, earliestDate, latestDate, Calendar.DAY_OF_YEAR);
+
+        JSpinner birthDateSpinner = new JSpinner(birthDateModel);
+        c.gridx = 2;
+        c.gridy = currentY;
+        contentPane.add(birthDateSpinner, c);
+        birthDateSpinner.setEditor(new JSpinner.DateEditor(birthDateSpinner, "dd.MM.yyyy"));
+
+        currentY++;
+
+        JCheckBox deathDateCheckBox = new JCheckBox();
+        deathDateCheckBox.setSelected(false);
+        deathDateCheckBox.setOpaque(false);
+        c.gridx = 0;
+        c.gridy = currentY;
+        contentPane.add(deathDateCheckBox, c);
+
+        JLabel deathDateLabel = new JLabel("Дата смерти:");
+        deathDateLabel.setOpaque(false);
+        c.gridx = 1;
+        c.gridy = currentY;
+        contentPane.add(deathDateLabel, c);
+
+        SpinnerDateModel deathDateModel = new SpinnerDateModel(initDate, earliestDate, latestDate, Calendar.DAY_OF_YEAR);
+
+        JSpinner deathDateSpinner = new JSpinner(deathDateModel);
+        c.gridx = 2;
+        c.gridy = currentY;
+        contentPane.add(deathDateSpinner, c);
+        deathDateSpinner.setEditor(new JSpinner.DateEditor(deathDateSpinner, "dd.MM.yyyy"));
+
+        currentY++;
+
+        JButton confirmButton = new JButton("Применить изменения");
+        c.gridx = 0;
+        c.gridy = currentY;
+        c.gridwidth = 3;
+        contentPane.add(confirmButton, c);
+
+        dialog.setPreferredSize(new Dimension(430, 250));
+        dialog.pack();
+        dialog.setVisible(true);
+    }
+
+    private void showInstrumentRemovalDialog(JDialog dialog, int id) {
+        //TODO
+    }
+
+    private void showInstrumentAdditionDialog(JDialog dialog, int id) {
+        //TODO
+    }
+
     private void showBandEditDialog(int bandID) {
         Band band = (Band) DataStorage.getItemByID(SQLItem.BANDS, bandID);
         JDialog dialog = new JDialog(MusicApp.this, "Редактировать группу");
@@ -823,6 +977,12 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         int currentY = 0;
 
         JButton musicianEditButton = new JButton("Редактировать музыканта...");
+        musicianEditButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showMusicianEditDialog(dialog, bandID);
+            }
+        });
         c.gridx = 0;
         c.gridy = currentY;
         c.gridwidth = 3;
