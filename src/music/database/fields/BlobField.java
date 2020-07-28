@@ -1,12 +1,12 @@
-package music.database.updates;
+package music.database.fields;
 
 import java.io.ByteArrayInputStream;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class BlobUpdate extends Update {
+public class BlobField extends Field {
 
-    public BlobUpdate(String field, byte[] value) {
+    public BlobField(String field, byte[] value) {
         super(field, value);
     }
 

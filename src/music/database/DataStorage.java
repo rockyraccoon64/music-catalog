@@ -2,8 +2,8 @@ package music.database;
 
 import music.database.items.*;
 import music.database.items.makers.DataItemMaker;
-import music.database.updates.Update;
-import music.database.updates.UpdateContainer;
+import music.database.fields.Field;
+import music.database.fields.FieldContainer;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -63,17 +63,36 @@ public class DataStorage {
         }
     }
 
-    public static void delete(SQLItem item, int id) throws SQLException {
-        String query = "DELETE FROM " + ITEM_NAMES.get(item)
-            + " WHERE ID = ?";
+    public static void delete(SQLItem item, FieldContainer fieldContainer) throws SQLException {
+        StringBuilder sb = new StringBuilder("DELETE FROM ");
+        sb.append(ITEM_NAMES.get(item));
+        sb.append(" WHERE ");
+
+        Vector<Field> fields = fieldContainer.getUpdates();
+        boolean isFirst = true;
+        for (Field f : fields) {
+            if (isFirst) {
+                isFirst = false;
+            }
+            else {
+                sb.append(" AND ");
+            }
+            sb.append(f.getField());
+            sb.append(" = ?");
+        }
+        sb.append(";");
 
         PreparedStatement pstmt = null;
         try {
             connection = DriverManager.getConnection(url, user, password);
-            pstmt = connection.prepareStatement(query);
-            pstmt.setInt(1, id);
+            pstmt = connection.prepareStatement(sb.toString());
+            int index = 1;
+            for (Field f : fields) {
+                f.prepareStatement(pstmt, index);
+                index++;
+            }
             pstmt.executeUpdate();
-            MAPS.get(item).remove(id);
+            refreshData();
         }
         catch (SQLException ex) {
             ex.printStackTrace();
@@ -90,17 +109,17 @@ public class DataStorage {
         }
     }
 
-    public static void insert(SQLItem item, UpdateContainer updateContainer) throws SQLException {
+    public static void insert(SQLItem item, FieldContainer fieldContainer) throws SQLException {
         StringBuilder sb = new StringBuilder("INSERT INTO ");
         sb.append(ITEM_NAMES.get(item));
         sb.append(" (");
 
-        Vector<Update> updates = updateContainer.getUpdates();
+        Vector<Field> fields = fieldContainer.getUpdates();
 
         StringBuilder sb2 = new StringBuilder(") VALUES (");
 
         boolean isFirst = true;
-        for (Update u : updates) {
+        for (Field u : fields) {
             if (isFirst) {
                 isFirst = false;
             }
@@ -119,7 +138,7 @@ public class DataStorage {
             connection = DriverManager.getConnection(url, user, password);
             pstmt = connection.prepareStatement(sb.toString());
             int index = 1;
-            for (Update u : updates) {
+            for (Field u : fields) {
                 u.prepareStatement(pstmt, index);
                 index++;
             }
@@ -141,22 +160,22 @@ public class DataStorage {
         }
     }
 
-    public static void update(UpdateContainer updateContainer) throws SQLException {
+    public static void update(FieldContainer fieldContainer) throws SQLException {
         StringBuilder sb = new StringBuilder("UPDATE ");
-        DataItem item = updateContainer.getItem();
-        Vector<Update> updates = updateContainer.getUpdates();
+        DataItem item = fieldContainer.getItem();
+        Vector<Field> fields = fieldContainer.getUpdates();
 
         sb.append(ITEM_NAMES.get(item.getType()));
         sb.append(" SET ");
 
         boolean isFirst = true;
 
-        for (Update update : updates) {
+        for (Field field : fields) {
             if (isFirst) {
                 isFirst = false;
             }
             else sb.append(", ");
-            sb.append(update.getField());
+            sb.append(field.getField());
             sb.append(" = ?");
         }
 
@@ -168,8 +187,8 @@ public class DataStorage {
             pstmt = connection.prepareStatement(sb.toString());
 
             int fieldIdx = 1;
-            for (Update update : updates) {
-                update.prepareStatement(pstmt, fieldIdx);
+            for (Field field : fields) {
+                field.prepareStatement(pstmt, fieldIdx);
                 fieldIdx++;
             }
             pstmt.setInt(fieldIdx, item.getID());

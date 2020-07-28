@@ -1,14 +1,14 @@
-package music.database.updates;
+package music.database.fields;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public abstract class Update {
+public abstract class Field {
 
     private String m_field;
     private Object m_value;
 
-    public Update(String field, Object value) {
+    public Field(String field, Object value) {
         m_field = field;
         m_value = value;
     }

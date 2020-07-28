@@ -1,11 +1,11 @@
-package music.database.updates;
+package music.database.fields;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class ShortUpdate extends Update {
+public class ShortField extends Field {
 
-    public ShortUpdate(String field, short value) {
+    public ShortField(String field, short value) {
         super(field, value);
     }
 

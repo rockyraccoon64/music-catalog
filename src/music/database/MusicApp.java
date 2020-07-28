@@ -1,7 +1,7 @@
 package music.database;
 
 import music.database.items.*;
-import music.database.updates.*;
+import music.database.fields.*;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -24,7 +24,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
     private static final int APP_WIDTH = 1000;
     private static final int APP_HEIGHT = 750;
-    private static final Color BACKGROUND_COLOR = new Color(255, 244, 161);
+    public static final Color BACKGROUND_COLOR = new Color(255, 244, 161);
     private static final int INFO_PANEL_WIDTH = APP_WIDTH / 3;
     private static final int INFO_PANEL_BORDER = 30;
     private byte[] IMAGE_PLACEHOLDER;
@@ -261,13 +261,13 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         confirmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Vector<Update> updates = new Vector<>();
-                updates.add(new NStringUpdate("Name", nameText.getText()));
-                updates.add(new IntUpdate("Album", album.getID()));
-                updates.add(new IntUpdate("TrackNo", spinnerModel.getNumber().intValue()));
+                Vector<Field> fields = new Vector<>();
+                fields.add(new NStringField("Name", nameText.getText()));
+                fields.add(new IntField("Album", album.getID()));
+                fields.add(new IntField("TrackNo", spinnerModel.getNumber().intValue()));
 
                 try {
-                    DataStorage.insert(SQLItem.SONGS, new UpdateContainer(null, updates));
+                    DataStorage.insert(SQLItem.SONGS, new FieldContainer(null, fields));
                     JOptionPane.showMessageDialog(dialog, "Песня добавлена.",
                             "Добавление успешно", JOptionPane.INFORMATION_MESSAGE);
                     showAlbumPage(album.getID());
@@ -322,7 +322,9 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    DataStorage.delete(SQLItem.SONGS, songs.get(songComboBox.getSelectedIndex()).getID());
+                    Vector<Field> fields = new Vector<>();
+                    fields.add(new IntField("ID", songs.get(songComboBox.getSelectedIndex()).getID()));
+                    DataStorage.delete(SQLItem.SONGS, new FieldContainer(null, fields));
                     JOptionPane.showMessageDialog(dialog, "Песня удалена.",
                             "Удаление успешно", JOptionPane.INFORMATION_MESSAGE);
                     showAlbumPage(album.getID());
@@ -552,28 +554,28 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         updateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Vector<Update> updates = new Vector<>();
+                Vector<Field> fields = new Vector<>();
 
                 if (bandCheckBox.isSelected()) {
-                    updates.add(new IntUpdate("Band", bands.get(bandComboBox.getSelectedIndex()).getID()));
+                    fields.add(new IntField("Band", bands.get(bandComboBox.getSelectedIndex()).getID()));
                 }
                 if (nameCheckBox.isSelected()) {
-                    updates.add(new NStringUpdate("Name", nameText.getText()));
+                    fields.add(new NStringField("Name", nameText.getText()));
                 }
                 if (dateCheckBox.isSelected()) {
-                    updates.add(new DateUpdate("ReleaseDate", dateModel.getDate()));
+                    fields.add(new DateField("ReleaseDate", dateModel.getDate()));
                 }
                 if (genreCheckBox.isSelected()) {
-                    updates.add(new IntUpdate("Genre", genres.get(genreComboBox.getSelectedIndex()).getID()));
+                    fields.add(new IntField("Genre", genres.get(genreComboBox.getSelectedIndex()).getID()));
                 }
 
                 byte[] image = imageButtonListener.getImageBytes();
                 if (imageCheckBox.isSelected() && image != null) {
-                    updates.add(new BlobUpdate("CoverImage", image));
+                    fields.add(new BlobField("CoverImage", image));
                 }
-                if (!updates.isEmpty()) {
+                if (!fields.isEmpty()) {
                     try {
-                        DataStorage.update(new UpdateContainer(album, updates));
+                        DataStorage.update(new FieldContainer(album, fields));
                         JOptionPane.showMessageDialog(dialog, "Данные обновлены.",
                                 "Обновление успешно", JOptionPane.INFORMATION_MESSAGE);
                         showAlbumPage(album.getID());
@@ -629,7 +631,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         add(listPanel, BorderLayout.CENTER);
     }
 
-    private void showBandPage(int bandID) {
+    public void showBandPage(int bandID) {
         getContentPane().removeAll();
         Band thisBand = (Band)DataStorage.getItemByID(SQLItem.BANDS, bandID);
         showTopPanel(thisBand);
@@ -732,7 +734,9 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    DataStorage.delete(SQLItem.ALBUMS, albums.get(albumComboBox.getSelectedIndex()).getID());
+                    Vector<Field> fields = new Vector<>();
+                    fields.add(new IntField("ID", albums.get(albumComboBox.getSelectedIndex()).getID()));
+                    DataStorage.delete(SQLItem.ALBUMS, new FieldContainer(null, fields));
                     JOptionPane.showMessageDialog(dialog, "Альбом удалён.",
                             "Удаление успешно", JOptionPane.INFORMATION_MESSAGE);
                     showBandPage(bandID);
@@ -784,12 +788,12 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         confirmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Vector<Update> updates = new Vector<>();
-                updates.add(new NStringUpdate("Name", nameText.getText()));
-                updates.add(new IntUpdate("Band", bandID));
+                Vector<Field> fields = new Vector<>();
+                fields.add(new NStringField("Name", nameText.getText()));
+                fields.add(new IntField("Band", bandID));
 
                 try {
-                    DataStorage.insert(SQLItem.ALBUMS, new UpdateContainer(null, updates));
+                    DataStorage.insert(SQLItem.ALBUMS, new FieldContainer(null, fields));
                     JOptionPane.showMessageDialog(dialog, "Альбом добавлен.",
                             "Добавление успешно", JOptionPane.INFORMATION_MESSAGE);
                     showBandPage(bandID);
@@ -811,202 +815,202 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         dialog.setVisible(true);
     }
 
-    private void showMusicianEditDialog(JDialog mainDialog, int bandID) {
-        Band band = (Band) DataStorage.getItemByID(SQLItem.BANDS, bandID);
-        JDialog dialog = new JDialog(MusicApp.this, "Редактировать группу");
-        Container contentPane = dialog.getContentPane();
-        contentPane.setLayout(new GridBagLayout());
-        contentPane.setBackground(BACKGROUND_COLOR);
-        GridBagConstraints c = new GridBagConstraints();
-
-        c.insets = new Insets(5, 5, 5, 5);
-        c.fill = GridBagConstraints.HORIZONTAL;
-
-        int currentY = 0;
-
-        Vector<Musician> musicians = band.getMusicians();
-        JComboBox<Musician> musicianComboBox = new JComboBox<>(musicians);
-        musicianComboBox.setRenderer(new DataItemComboBoxRenderer());
-        musicianComboBox.setBackground(Color.WHITE);
-        c.gridx = 0;
-        c.gridy = currentY;
-        c.gridwidth = 3;
-        contentPane.add(musicianComboBox, c);
-
-        currentY++;
-
-        JPanel instrumentPanel = new JPanel(new GridBagLayout());
-        instrumentPanel.setOpaque(false);
-        GridBagConstraints c_instrPanel = new GridBagConstraints();
-        c_instrPanel.insets = new Insets(0, 5, 0, 5);
-
-        JButton addInstrumentButton = new JButton("Присоединить инструмент...");
-        addInstrumentButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Musician selectedMusician = musicians.get(musicianComboBox.getSelectedIndex());
-                showInstrumentConnectionDialog(dialog, selectedMusician.getID());
-            }
-        });
-        c_instrPanel.gridx = 0;
-        c_instrPanel.gridy = 0;
-        instrumentPanel.add(addInstrumentButton, c_instrPanel);
-
-        JButton removeInstrumentButton = new JButton("Отсоединить инструмент...");
-        removeInstrumentButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Musician selectedMusician = musicians.get(musicianComboBox.getSelectedIndex());
-                showInstrumentDisconnectionDialog(dialog, selectedMusician.getID());
-            }
-        });
-        c_instrPanel.gridx = 1;
-        c_instrPanel.gridy = 0;
-        instrumentPanel.add(removeInstrumentButton, c_instrPanel);
-
-        c.gridx = 0;
-        c.gridy = currentY;
-        c.gridwidth = 3;
-        contentPane.add(instrumentPanel, c);
-
-        currentY++;
-        c.gridwidth = 1;
-
-        JCheckBox nameCheckBox = new JCheckBox();
-        nameCheckBox.setSelected(false);
-        nameCheckBox.setOpaque(false);
-        c.gridx = 0;
-        c.gridy = currentY;
-        contentPane.add(nameCheckBox, c);
-
-        JLabel newNameLabel = new JLabel("Имя:");
-        newNameLabel.setOpaque(false);
-        c.gridx = 1;
-        c.gridy = currentY;
-        contentPane.add(newNameLabel, c);
-
-        JTextField nameText = new JTextField();
-        c.gridx = 2;
-        c.gridy = currentY;
-        contentPane.add(nameText, c);
-
-        currentY++;
-
-        JCheckBox birthDateCheckBox = new JCheckBox();
-        birthDateCheckBox.setSelected(false);
-        birthDateCheckBox.setOpaque(false);
-        c.gridx = 0;
-        c.gridy = currentY;
-        contentPane.add(birthDateCheckBox, c);
-
-        JLabel birthDateLabel = new JLabel("Дата рождения:");
-        birthDateLabel.setOpaque(false);
-        c.gridx = 1;
-        c.gridy = currentY;
-        contentPane.add(birthDateLabel, c);
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(Date.from(Instant.now()));
-        Date initDate = calendar.getTime();
-        calendar.setTime(new Date());
-        calendar.add(Calendar.YEAR, -100);
-        Date earliestDate = calendar.getTime();
-        calendar.setTime(initDate);
-        Date latestDate = calendar.getTime();
-        SpinnerDateModel birthDateModel = new SpinnerDateModel(initDate, earliestDate, latestDate, Calendar.DAY_OF_YEAR);
-
-        JSpinner birthDateSpinner = new JSpinner(birthDateModel);
-        c.gridx = 2;
-        c.gridy = currentY;
-        contentPane.add(birthDateSpinner, c);
-        birthDateSpinner.setEditor(new JSpinner.DateEditor(birthDateSpinner, "dd.MM.yyyy"));
-
-        currentY++;
-
-        JCheckBox deathDateCheckBox = new JCheckBox();
-        deathDateCheckBox.setSelected(false);
-        deathDateCheckBox.setOpaque(false);
-        c.gridx = 0;
-        c.gridy = currentY;
-        contentPane.add(deathDateCheckBox, c);
-
-        JLabel deathDateLabel = new JLabel("Дата смерти:");
-        deathDateLabel.setOpaque(false);
-        c.gridx = 1;
-        c.gridy = currentY;
-        contentPane.add(deathDateLabel, c);
-
-        SpinnerDateModel deathDateModel = new SpinnerDateModel(initDate, earliestDate, latestDate, Calendar.DAY_OF_YEAR);
-
-        JSpinner deathDateSpinner = new JSpinner(deathDateModel);
-        c.gridx = 2;
-        c.gridy = currentY;
-        contentPane.add(deathDateSpinner, c);
-        deathDateSpinner.setEditor(new JSpinner.DateEditor(deathDateSpinner, "dd.MM.yyyy"));
-
-        currentY++;
-
-        JButton confirmButton = new JButton("Применить изменения");
-        confirmButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Vector<Update> updates = new Vector<>();
-
-                if (nameCheckBox.isSelected()) {
-                    updates.add(new NStringUpdate("Name", nameText.getText()));
-                }
-                if (birthDateCheckBox.isSelected()) {
-                    updates.add(new DateUpdate("DateOfBirth", birthDateModel.getDate()));
-                }
-                if (deathDateCheckBox.isSelected()) {
-                    updates.add(new DateUpdate("DateOfDeath", deathDateModel.getDate()));
-                }
-                if (!updates.isEmpty()) {
-                    try {
-                        DataStorage.update(
-                                new UpdateContainer(musicians.get(musicianComboBox.getSelectedIndex()), updates)
-                        );
-                        JOptionPane.showMessageDialog(dialog, "Данные обновлены.",
-                                "Обновление успешно", JOptionPane.INFORMATION_MESSAGE);
-                        showBandPage(bandID);
-                        dialog.dispose();
-                    }
-                    catch (SQLException ex) {
-                        JOptionPane.showMessageDialog(dialog, "Обновление не удалось.",
-                                "Обновление не удалось", JOptionPane.ERROR_MESSAGE);
-                    }
-                }
-                else {
-                    JOptionPane.showMessageDialog(dialog, "Поля для обновления не выбраны.",
-                            "Ошибка обновления", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
-        c.gridx = 0;
-        c.gridy = currentY;
-        c.gridwidth = 3;
-        contentPane.add(confirmButton, c);
-
-        musicianComboBox.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                Musician musician = (Musician)e.getItem();
-                nameText.setText(musician.getName());
-                LocalDate birthDate = musician.getBirthDate();
-                if (birthDate != null) {
-                    birthDateModel.setValue(Date.from(birthDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
-                }
-                LocalDate deathDate = musician.getDeathDate();
-                if (deathDate != null) {
-                    deathDateModel.setValue(Date.from(deathDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
-                }
-            }
-        });
-
-        dialog.setPreferredSize(new Dimension(430, 250));
-        dialog.pack();
-        dialog.setVisible(true);
-    }
+//    private void showMusicianEditDialog(JDialog mainDialog, int bandID) {
+//        Band band = (Band) DataStorage.getItemByID(SQLItem.BANDS, bandID);
+//        JDialog dialog = new JDialog(mainDialog, "Редактировать группу");
+//        Container contentPane = dialog.getContentPane();
+//        contentPane.setLayout(new GridBagLayout());
+//        contentPane.setBackground(BACKGROUND_COLOR);
+//        GridBagConstraints c = new GridBagConstraints();
+//
+//        c.insets = new Insets(5, 5, 5, 5);
+//        c.fill = GridBagConstraints.HORIZONTAL;
+//
+//        int currentY = 0;
+//
+//        Vector<Musician> musicians = band.getMusicians();
+//        JComboBox<Musician> musicianComboBox = new JComboBox<>(musicians);
+//        musicianComboBox.setRenderer(new DataItemComboBoxRenderer());
+//        musicianComboBox.setBackground(Color.WHITE);
+//        c.gridx = 0;
+//        c.gridy = currentY;
+//        c.gridwidth = 3;
+//        contentPane.add(musicianComboBox, c);
+//
+//        currentY++;
+//
+//        JPanel instrumentPanel = new JPanel(new GridBagLayout());
+//        instrumentPanel.setOpaque(false);
+//        GridBagConstraints c_instrPanel = new GridBagConstraints();
+//        c_instrPanel.insets = new Insets(0, 5, 0, 5);
+//
+//        JButton addInstrumentButton = new JButton("Присоединить инструмент...");
+//        addInstrumentButton.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                Musician selectedMusician = musicians.get(musicianComboBox.getSelectedIndex());
+//                showInstrumentConnectionDialog(dialog, selectedMusician.getID());
+//            }
+//        });
+//        c_instrPanel.gridx = 0;
+//        c_instrPanel.gridy = 0;
+//        instrumentPanel.add(addInstrumentButton, c_instrPanel);
+//
+//        JButton removeInstrumentButton = new JButton("Отсоединить инструмент...");
+//        removeInstrumentButton.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                Musician selectedMusician = musicians.get(musicianComboBox.getSelectedIndex());
+//                showInstrumentDisconnectionDialog(dialog, selectedMusician.getID());
+//            }
+//        });
+//        c_instrPanel.gridx = 1;
+//        c_instrPanel.gridy = 0;
+//        instrumentPanel.add(removeInstrumentButton, c_instrPanel);
+//
+//        c.gridx = 0;
+//        c.gridy = currentY;
+//        c.gridwidth = 3;
+//        contentPane.add(instrumentPanel, c);
+//
+//        currentY++;
+//        c.gridwidth = 1;
+//
+//        JCheckBox nameCheckBox = new JCheckBox();
+//        nameCheckBox.setSelected(false);
+//        nameCheckBox.setOpaque(false);
+//        c.gridx = 0;
+//        c.gridy = currentY;
+//        contentPane.add(nameCheckBox, c);
+//
+//        JLabel newNameLabel = new JLabel("Имя:");
+//        newNameLabel.setOpaque(false);
+//        c.gridx = 1;
+//        c.gridy = currentY;
+//        contentPane.add(newNameLabel, c);
+//
+//        JTextField nameText = new JTextField();
+//        c.gridx = 2;
+//        c.gridy = currentY;
+//        contentPane.add(nameText, c);
+//
+//        currentY++;
+//
+//        JCheckBox birthDateCheckBox = new JCheckBox();
+//        birthDateCheckBox.setSelected(false);
+//        birthDateCheckBox.setOpaque(false);
+//        c.gridx = 0;
+//        c.gridy = currentY;
+//        contentPane.add(birthDateCheckBox, c);
+//
+//        JLabel birthDateLabel = new JLabel("Дата рождения:");
+//        birthDateLabel.setOpaque(false);
+//        c.gridx = 1;
+//        c.gridy = currentY;
+//        contentPane.add(birthDateLabel, c);
+//
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.setTime(Date.from(Instant.now()));
+//        Date initDate = calendar.getTime();
+//        calendar.setTime(new Date());
+//        calendar.add(Calendar.YEAR, -100);
+//        Date earliestDate = calendar.getTime();
+//        calendar.setTime(initDate);
+//        Date latestDate = calendar.getTime();
+//        SpinnerDateModel birthDateModel = new SpinnerDateModel(initDate, earliestDate, latestDate, Calendar.DAY_OF_YEAR);
+//
+//        JSpinner birthDateSpinner = new JSpinner(birthDateModel);
+//        c.gridx = 2;
+//        c.gridy = currentY;
+//        contentPane.add(birthDateSpinner, c);
+//        birthDateSpinner.setEditor(new JSpinner.DateEditor(birthDateSpinner, "dd.MM.yyyy"));
+//
+//        currentY++;
+//
+//        JCheckBox deathDateCheckBox = new JCheckBox();
+//        deathDateCheckBox.setSelected(false);
+//        deathDateCheckBox.setOpaque(false);
+//        c.gridx = 0;
+//        c.gridy = currentY;
+//        contentPane.add(deathDateCheckBox, c);
+//
+//        JLabel deathDateLabel = new JLabel("Дата смерти:");
+//        deathDateLabel.setOpaque(false);
+//        c.gridx = 1;
+//        c.gridy = currentY;
+//        contentPane.add(deathDateLabel, c);
+//
+//        SpinnerDateModel deathDateModel = new SpinnerDateModel(initDate, earliestDate, latestDate, Calendar.DAY_OF_YEAR);
+//
+//        JSpinner deathDateSpinner = new JSpinner(deathDateModel);
+//        c.gridx = 2;
+//        c.gridy = currentY;
+//        contentPane.add(deathDateSpinner, c);
+//        deathDateSpinner.setEditor(new JSpinner.DateEditor(deathDateSpinner, "dd.MM.yyyy"));
+//
+//        currentY++;
+//
+//        JButton confirmButton = new JButton("Применить изменения");
+//        confirmButton.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                Vector<Field> fields = new Vector<>();
+//
+//                if (nameCheckBox.isSelected()) {
+//                    fields.add(new NStringField("Name", nameText.getText()));
+//                }
+//                if (birthDateCheckBox.isSelected()) {
+//                    fields.add(new DateField("DateOfBirth", birthDateModel.getDate()));
+//                }
+//                if (deathDateCheckBox.isSelected()) {
+//                    fields.add(new DateField("DateOfDeath", deathDateModel.getDate()));
+//                }
+//                if (!fields.isEmpty()) {
+//                    try {
+//                        DataStorage.update(
+//                                new FieldContainer(musicians.get(musicianComboBox.getSelectedIndex()), fields)
+//                        );
+//                        JOptionPane.showMessageDialog(dialog, "Данные обновлены.",
+//                                "Обновление успешно", JOptionPane.INFORMATION_MESSAGE);
+//                        showBandPage(bandID);
+//                        dialog.dispose();
+//                    }
+//                    catch (SQLException ex) {
+//                        JOptionPane.showMessageDialog(dialog, "Обновление не удалось.",
+//                                "Обновление не удалось", JOptionPane.ERROR_MESSAGE);
+//                    }
+//                }
+//                else {
+//                    JOptionPane.showMessageDialog(dialog, "Поля для обновления не выбраны.",
+//                            "Ошибка обновления", JOptionPane.ERROR_MESSAGE);
+//                }
+//            }
+//        });
+//        c.gridx = 0;
+//        c.gridy = currentY;
+//        c.gridwidth = 3;
+//        contentPane.add(confirmButton, c);
+//
+//        musicianComboBox.addItemListener(new ItemListener() {
+//            @Override
+//            public void itemStateChanged(ItemEvent e) {
+//                Musician musician = (Musician)e.getItem();
+//                nameText.setText(musician.getName());
+//                LocalDate birthDate = musician.getBirthDate();
+//                if (birthDate != null) {
+//                    birthDateModel.setValue(Date.from(birthDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+//                }
+//                LocalDate deathDate = musician.getDeathDate();
+//                if (deathDate != null) {
+//                    deathDateModel.setValue(Date.from(deathDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+//                }
+//            }
+//        });
+//
+//        dialog.setPreferredSize(new Dimension(430, 250));
+//        dialog.pack();
+//        dialog.setVisible(true);
+//    }
 
     private void showInstrumentDisconnectionDialog(JDialog mainDialog, int musicianID) {
         JDialog dialog = new JDialog(mainDialog, "Отсоединить инструмент");
@@ -1041,8 +1045,16 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    //TODO
-                    DataStorage.delete(SQLItem.MUSICIAN_INSTRUMENT, instruments.get(instrumentComboBox.getSelectedIndex()).getID());
+                    Vector<Field> fields = new Vector<>();
+                    fields.add(new IntField("MusicianID", musicianID));
+                    fields.add(
+                            new IntField(
+                                    "InstrumentID",
+                                    instruments.get(
+                                            instrumentComboBox.getSelectedIndex()).getID()
+                            )
+                    );
+                    DataStorage.delete(SQLItem.MUSICIAN_INSTRUMENT, new FieldContainer(null, fields));
                     JOptionPane.showMessageDialog(dialog, "Инструмент отсоединён.",
                             "Удаление успешно", JOptionPane.INFORMATION_MESSAGE);
                     Musician musician = (Musician) DataStorage.getItemByID(SQLItem.MUSICIANS, musicianID);
@@ -1073,145 +1085,6 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         //TODO
     }
 
-    private void showInstrumentConnectionDialog(JDialog mainDialog, int musicianID) {
-        JDialog dialog = new JDialog(mainDialog, "Добавить инструмент у музыканта");
-        Container contentPane = dialog.getContentPane();
-        contentPane.setLayout(new GridBagLayout());
-        contentPane.setBackground(BACKGROUND_COLOR);
-        GridBagConstraints c = new GridBagConstraints();
-
-        c.insets = new Insets(5, 5, 5, 5);
-        c.fill = GridBagConstraints.HORIZONTAL;
-
-        int currentY = 0;
-
-        JButton addNewInstrument = new JButton("Добавить новый инструмент");
-        addNewInstrument.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                showInstrumentAdditionDialog(dialog);
-            }
-        });
-        c.gridx = 0;
-        c.gridy = currentY;
-        c.gridwidth = 2;
-        contentPane.add(addNewInstrument, c);
-
-        currentY++;
-        c.gridwidth = 1;
-
-        JLabel nameLabel = new JLabel("Инструмент:");
-        nameLabel.setOpaque(false);
-        c.gridx = 0;
-        c.gridy = currentY;
-        contentPane.add(nameLabel, c);
-
-        Collection<DataItem> instrumentCollection = DataStorage.getItems(SQLItem.INSTRUMENTS);
-        Vector<Instrument> instruments = new Vector<>();
-        for (DataItem item : instrumentCollection) {
-            instruments.add((Instrument)item);
-        }
-        JComboBox<Instrument> instrumentComboBox = new JComboBox<>(instruments);
-        instrumentComboBox.setBackground(Color.WHITE);
-        instrumentComboBox.setRenderer(new DataItemComboBoxRenderer());
-        c.gridx = 1;
-        c.gridy = currentY;
-        contentPane.add(instrumentComboBox, c);
-
-        currentY++;
-
-        JButton confirmButton = new JButton("Присоединить инструмент");
-        confirmButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Vector<Update> updates = new Vector<>();
-                updates.add(new IntUpdate("MusicianID", musicianID));
-                updates.add(
-                        new IntUpdate(
-                                "InstrumentID",
-                                instruments.get(instrumentComboBox.getSelectedIndex()).getID()
-                        )
-                );
-
-                try {
-                    DataStorage.insert(SQLItem.MUSICIAN_INSTRUMENT, new UpdateContainer(null, updates));
-                    JOptionPane.showMessageDialog(dialog, "Инструмент добавлен.",
-                            "Добавление успешно", JOptionPane.INFORMATION_MESSAGE);
-                    Musician musician = (Musician) DataStorage.getItemByID(SQLItem.MUSICIANS, musicianID);
-                    showBandPage(musician.getBand().getID());
-                    dialog.dispose();
-                }
-                catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(dialog, "Обновление не удалось.",
-                            "Добавление не удалось", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
-        c.gridx = 0;
-        c.gridy = currentY;
-        c.gridwidth = 2;
-        contentPane.add(confirmButton, c);
-
-        dialog.setPreferredSize(new Dimension(430, 150));
-        dialog.pack();
-        dialog.setVisible(true);
-    }
-
-    private void showInstrumentAdditionDialog(JDialog mainDialog) {
-        JDialog dialog = new JDialog(mainDialog, "Добавить инструмент у музыканта");
-        Container contentPane = dialog.getContentPane();
-        contentPane.setLayout(new GridBagLayout());
-        contentPane.setBackground(BACKGROUND_COLOR);
-        GridBagConstraints c = new GridBagConstraints();
-
-        c.insets = new Insets(5, 5, 5, 5);
-        c.fill = GridBagConstraints.HORIZONTAL;
-
-        int currentY = 0;
-
-        JLabel nameLabel = new JLabel("Название:");
-        nameLabel.setOpaque(false);
-        c.gridx = 0;
-        c.gridy = currentY;
-        contentPane.add(nameLabel, c);
-
-        JTextField nameText = new JTextField();
-        nameText.setPreferredSize(new Dimension(250, 20));
-        c.gridx = 1;
-        c.gridy = currentY;
-        contentPane.add(nameText, c);
-
-        currentY++;
-
-        JButton addButton = new JButton("Добавить инструмент");
-        addButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Vector<Update> updates = new Vector<>();
-                updates.add(new NStringUpdate("Name", nameText.getText()));
-
-                try {
-                    DataStorage.insert(SQLItem.INSTRUMENTS, new UpdateContainer(null, updates));
-                    JOptionPane.showMessageDialog(dialog, "Инструмент добавлен.",
-                            "Добавление успешно", JOptionPane.INFORMATION_MESSAGE);
-                    dialog.dispose();
-                }
-                catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(dialog, "Обновление не удалось.",
-                            "Добавление не удалось", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
-        c.gridx = 0;
-        c.gridy = currentY;
-        c.gridwidth = 2;
-        contentPane.add(addButton, c);
-
-        dialog.setPreferredSize(new Dimension(430, 150));
-        dialog.pack();
-        dialog.setVisible(true);
-    }
-
     private void showBandEditDialog(int bandID) {
         Band band = (Band) DataStorage.getItemByID(SQLItem.BANDS, bandID);
         JDialog dialog = new JDialog(MusicApp.this, "Редактировать группу");
@@ -1229,7 +1102,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         musicianEditButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                showMusicianEditDialog(dialog, bandID);
+                new MusicianEditDialog(MusicApp.this, dialog, bandID);
             }
         });
         c.gridx = 0;
@@ -1423,26 +1296,26 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         updateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Vector<Update> updates = new Vector<>();
+                Vector<Field> fields = new Vector<>();
 
                 if (nameCheckBox.isSelected()) {
-                    updates.add(new NStringUpdate("Name", nameText.getText()));
+                    fields.add(new NStringField("Name", nameText.getText()));
                 }
                 if (formDateCheckBox.isSelected()) {
-                    updates.add(new IntUpdate("YearOfFormation", formDateModel.getNumber().intValue()));
+                    fields.add(new IntField("YearOfFormation", formDateModel.getNumber().intValue()));
                 }
                 if (disbandDateCheckBox.isSelected()) {
-                    updates.add(new IntUpdate("YearOfDisbanding", disbandDateModel.getNumber().intValue()));
+                    fields.add(new IntField("YearOfDisbanding", disbandDateModel.getNumber().intValue()));
                     //TODO добавить возможность удалить дату распада
                 }
 
                 byte[] image = imageButtonListener.getImageBytes();
                 if (imageCheckBox.isSelected() && image != null) {
-                    updates.add(new BlobUpdate("Photo", image));
+                    fields.add(new BlobField("Photo", image));
                 }
-                if (!updates.isEmpty()) {
+                if (!fields.isEmpty()) {
                     try {
-                        DataStorage.update(new UpdateContainer(band, updates));
+                        DataStorage.update(new FieldContainer(band, fields));
                         JOptionPane.showMessageDialog(dialog, "Данные обновлены.",
                                 "Обновление успешно", JOptionPane.INFORMATION_MESSAGE);
                         showBandPage(bandID);
@@ -1500,12 +1373,12 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         confirmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Vector<Update> updates = new Vector<>();
-                updates.add(new NStringUpdate("Name", nameText.getText()));
-                updates.add(new IntUpdate("Band", bandID));
+                Vector<Field> fields = new Vector<>();
+                fields.add(new NStringField("Name", nameText.getText()));
+                fields.add(new IntField("Band", bandID));
 
                 try {
-                    DataStorage.insert(SQLItem.MUSICIANS, new UpdateContainer(null, updates));
+                    DataStorage.insert(SQLItem.MUSICIANS, new FieldContainer(null, fields));
                     JOptionPane.showMessageDialog(dialog, "Музыкант добавлен.",
                             "Добавление успешно", JOptionPane.INFORMATION_MESSAGE);
                     showBandPage(bandID);
@@ -1560,7 +1433,9 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    DataStorage.delete(SQLItem.MUSICIANS, musicians.get(musicianComboBox.getSelectedIndex()).getID());
+                    Vector<Field> fields = new Vector<>();
+                    fields.add(new IntField("ID", musicians.get(musicianComboBox.getSelectedIndex()).getID()));
+                    DataStorage.delete(SQLItem.MUSICIANS, new FieldContainer(null, fields));
                     JOptionPane.showMessageDialog(dialog, "Музыкант удалён.",
                             "Удаление успешно", JOptionPane.INFORMATION_MESSAGE);
                     showBandPage(bandID);

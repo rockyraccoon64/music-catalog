@@ -1,10 +1,10 @@
-package music.database.updates;
+package music.database.fields;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class NStringUpdate extends Update {
-    public NStringUpdate(String field, String value) {
+public class NStringField extends Field {
+    public NStringField(String field, String value) {
         super(field, value);
     }
 

@@ -1,12 +1,12 @@
-package music.database.updates;
+package music.database.fields;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Date;
 
-public class DateUpdate extends Update {
+public class DateField extends Field {
 
-    public DateUpdate(String field, Date value) {
+    public DateField(String field, Date value) {
         super(field, value);
     }
 

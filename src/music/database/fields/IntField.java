@@ -1,11 +1,11 @@
-package music.database.updates;
+package music.database.fields;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class IntUpdate extends Update {
+public class IntField extends Field {
 
-    public IntUpdate(String field, int value) {
+    public IntField(String field, int value) {
         super(field, value);
     }
 
