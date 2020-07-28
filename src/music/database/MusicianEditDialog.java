@@ -32,12 +32,13 @@ public class MusicianEditDialog extends JDialog {
         MAIN_WINDOW = mainFrame;
         OWNER = owner;
         BAND_ID = bandID;
-        showMusicianEditDialog();
+        refresh();
     }
 
-    private void showMusicianEditDialog() {
+    public void refresh() {
         Band band = (Band) DataStorage.getItemByID(SQLItem.BANDS, BAND_ID);
         Container contentPane = getContentPane();
+        contentPane.removeAll();
         contentPane.setLayout(new GridBagLayout());
         contentPane.setBackground(MusicApp.BACKGROUND_COLOR);
         GridBagConstraints c = new GridBagConstraints();
