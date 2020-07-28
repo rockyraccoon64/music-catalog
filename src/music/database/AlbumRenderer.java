@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -29,9 +30,12 @@ public class AlbumRenderer implements ListCellRenderer<Album> {
         albumName.setFont(new Font("Arial", Font.ITALIC, 20));
         panel.add(albumName);
 
-        JLabel albumYear = new JLabel("(" + album.getReleaseDate().getYear() + ")");
-        albumYear.setFont(new Font("Arial", Font.PLAIN, 20));
-        panel.add(albumYear);
+        LocalDate releaseDate = album.getReleaseDate();
+        if (releaseDate != null) {
+            JLabel albumYear = new JLabel("(" + releaseDate.getYear() + ")");
+            albumYear.setFont(new Font("Arial", Font.PLAIN, 20));
+            panel.add(albumYear);
+        }
 
         panel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 

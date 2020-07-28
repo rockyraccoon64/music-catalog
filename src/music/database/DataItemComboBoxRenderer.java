@@ -29,7 +29,12 @@ class DataItemComboBoxRenderer extends JLabel implements ListCellRenderer<DataIt
             setForeground(list.getForeground());
         }
 
-        setText(value.getName());
+        if (value != null) {
+            String name = value.getName();
+            if (name != null) {
+                setText(name);
+            }
+        }
 
         return this;
     }
