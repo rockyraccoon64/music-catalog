@@ -261,7 +261,10 @@ public class DataStorage {
     }
     public static Vector<Integer> getInstrumentIDs(Musician musician) {
         TreeSet<Integer> set = MUSICIAN_INSTRUMENT_MAP.get(musician.getID());
-        return new Vector<>(set);
+        if (set != null) {
+            return new Vector<>(set);
+        }
+        else return new Vector<Integer>();
     }
     public static Collection<DataItem> getItems(SQLItem item) {
         return MAPS.get(item).values();

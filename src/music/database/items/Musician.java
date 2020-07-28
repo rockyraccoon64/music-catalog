@@ -5,7 +5,6 @@ import music.database.SQLItem;
 
 import java.lang.ref.WeakReference;
 import java.time.LocalDate;
-import java.util.TreeSet;
 import java.util.Vector;
 
 public class Musician extends DataItem {

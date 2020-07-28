@@ -698,7 +698,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
     private void showAlbumRemovalDialog(JDialog mainDialog, int bandID) {
         Band band = (Band) DataStorage.getItemByID(SQLItem.BANDS, bandID);
-        JDialog dialog = new JDialog(MusicApp.this, "Удалить альбом");
+        JDialog dialog = new JDialog(mainDialog, "Удалить альбом");
         Container contentPane = dialog.getContentPane();
         contentPane.setLayout(new GridBagLayout());
         contentPane.setBackground(BACKGROUND_COLOR);
@@ -753,7 +753,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
     private void showAlbumAdditionDialog(JDialog mainDialog, int bandID) {
         Band band = (Band) DataStorage.getItemByID(SQLItem.BANDS, bandID);
-        JDialog dialog = new JDialog(MusicApp.this, "Добавить альбом");
+        JDialog dialog = new JDialog(mainDialog, "Добавить альбом");
         Container contentPane = dialog.getContentPane();
         contentPane.setLayout(new GridBagLayout());
         contentPane.setBackground(BACKGROUND_COLOR);
@@ -821,6 +821,14 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         c.fill = GridBagConstraints.HORIZONTAL;
 
         int currentY = 0;
+
+        JButton musicianEditButton = new JButton("Редактировать музыканта...");
+        c.gridx = 0;
+        c.gridy = currentY;
+        c.gridwidth = 3;
+        contentPane.add(musicianEditButton, c);
+
+        currentY++;
 
         JPanel musicianPanel = new JPanel(new GridBagLayout());
         musicianPanel.setOpaque(false);
@@ -1047,17 +1055,122 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         c.gridwidth = 2;
         contentPane.add(updateButton, c);
 
-        dialog.setPreferredSize(new Dimension(430, 325));
+        dialog.setPreferredSize(new Dimension(430, 375));
         dialog.pack();
         dialog.setVisible(true);
     }
 
-    private void showMusicianAdditionDialog(JDialog dialog, int bandID) {
-        //TODO
+    private void showMusicianAdditionDialog(JDialog mainDialog, int bandID) {
+        Band band = (Band) DataStorage.getItemByID(SQLItem.BANDS, bandID);
+        JDialog dialog = new JDialog(mainDialog, "Добавить альбом");
+        Container contentPane = dialog.getContentPane();
+        contentPane.setLayout(new GridBagLayout());
+        contentPane.setBackground(BACKGROUND_COLOR);
+        GridBagConstraints c = new GridBagConstraints();
+
+        c.insets = new Insets(5, 5, 5, 5);
+        c.fill = GridBagConstraints.HORIZONTAL;
+
+        int currentY = 0;
+
+        JLabel nameLabel = new JLabel("Имя:");
+        nameLabel.setOpaque(false);
+        c.gridx = 0;
+        c.gridy = currentY;
+        contentPane.add(nameLabel, c);
+
+        JTextField nameText = new JTextField();
+        nameText.setPreferredSize(new Dimension(250, 20));
+        c.gridx = 1;
+        c.gridy = currentY;
+        contentPane.add(nameText, c);
+
+        currentY++;
+
+        JButton confirmButton = new JButton("Добавить музыканта");
+        confirmButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Vector<Update> updates = new Vector<>();
+                updates.add(new NStringUpdate("Name", nameText.getText()));
+                updates.add(new IntUpdate("Band", bandID));
+
+                try {
+                    DataStorage.insert(SQLItem.MUSICIANS, new UpdateContainer(null, updates));
+                    JOptionPane.showMessageDialog(dialog, "Музыкант добавлен.",
+                            "Добавление успешно", JOptionPane.INFORMATION_MESSAGE);
+                    showBandPage(bandID);
+                    dialog.dispose();
+                }
+                catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(dialog, "Обновление не удалось.",
+                            "Добавление не удалось", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        c.gridx = 0;
+        c.gridy = currentY;
+        c.gridwidth = 2;
+        contentPane.add(confirmButton, c);
+
+        dialog.setPreferredSize(new Dimension(430, 150));
+        dialog.pack();
+        dialog.setVisible(true);
     }
 
-    private void showMusicianRemovalDialog(JDialog dialog, int bandID) {
-        //TODO
+    private void showMusicianRemovalDialog(JDialog mainDialog, int bandID) {
+        Band band = (Band) DataStorage.getItemByID(SQLItem.BANDS, bandID);
+        JDialog dialog = new JDialog(mainDialog, "Удалить альбом");
+        Container contentPane = dialog.getContentPane();
+        contentPane.setLayout(new GridBagLayout());
+        contentPane.setBackground(BACKGROUND_COLOR);
+        GridBagConstraints c = new GridBagConstraints();
+
+        c.insets = new Insets(5, 5, 5, 5);
+        c.fill = GridBagConstraints.HORIZONTAL;
+
+        int currentY = 0;
+
+        JLabel nameLabel = new JLabel("Имя:");
+        nameLabel.setOpaque(false);
+        c.gridx = 0;
+        c.gridy = currentY;
+        contentPane.add(nameLabel, c);
+
+        Vector<Musician> musicians = band.getMusicians();
+        JComboBox<Musician> musicianComboBox = new JComboBox<>(musicians);
+        musicianComboBox.setRenderer(new DataItemComboBoxRenderer());
+        c.gridx = 1;
+        c.gridy = currentY;
+        contentPane.add(musicianComboBox, c);
+
+        currentY++;
+
+        JButton confirmButton = new JButton("Удалить музыканта");
+        confirmButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    DataStorage.delete(SQLItem.MUSICIANS, musicians.get(musicianComboBox.getSelectedIndex()).getID());
+                    JOptionPane.showMessageDialog(dialog, "Музыкант удалён.",
+                            "Удаление успешно", JOptionPane.INFORMATION_MESSAGE);
+                    showBandPage(bandID);
+                    dialog.dispose();
+                }
+                catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(dialog, "Удаление не удалось.",
+                            "Ошибка при удалении", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        c.gridx = 0;
+        c.gridy = currentY;
+        c.gridwidth = 2;
+        contentPane.add(confirmButton, c);
+
+        dialog.setPreferredSize(new Dimension(430, 150));
+        dialog.pack();
+        dialog.setVisible(true);
     }
 
     private void showAlbumPage(int albumID) {
