@@ -6,5 +6,6 @@ public enum SQLItem {
     ALBUMS,
     INSTRUMENTS,
     MUSICIANS,
-    SONGS
+    SONGS,
+    MUSICIAN_INSTRUMENT
 }

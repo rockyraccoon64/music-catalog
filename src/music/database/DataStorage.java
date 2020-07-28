@@ -35,6 +35,7 @@ public class DataStorage {
         ITEM_NAMES.put(SQLItem.INSTRUMENTS, "Instruments");
         ITEM_NAMES.put(SQLItem.GENRES, "Genres");
         ITEM_NAMES.put(SQLItem.SONGS, "Songs");
+        ITEM_NAMES.put(SQLItem.MUSICIAN_INSTRUMENT, "MusicianInstrument");
     }
 
     public static void refreshData() {
