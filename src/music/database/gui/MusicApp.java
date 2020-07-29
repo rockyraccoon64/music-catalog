@@ -48,7 +48,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         setLayout(new BorderLayout());
 
         setTitle("Музыкальная база данных");
-        setSize(APP_WIDTH, APP_HEIGHT);
+        setPreferredSize(new Dimension(APP_WIDTH, APP_HEIGHT));
         getContentPane().setBackground(BACKGROUND_COLOR);
 
         showBandList();
@@ -193,14 +193,14 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         JPanel managementPanel = new JPanel(new GridBagLayout());
         managementPanel.setOpaque(false);
         GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(5, 5, 5, 5);
+        c.insets = new Insets(0, 5, 25, 5);
         c.fill = GridBagConstraints.HORIZONTAL;
 
         JButton bandAdditionButton = new JButton("Добавить группу...");
         bandAdditionButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //TODO
+                new BandAdditionDialog();
             }
         });
         c.gridx = 0;
@@ -222,7 +222,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         genreEditButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //TODO
+                new GenreEditDialog();
             }
         });
         c.gridx = 2;
