@@ -1,9 +1,9 @@
-package music.database.items.makers;
+package music.database.data.makers;
 
-import music.database.DataStorage;
-import music.database.SQLItem;
-import music.database.items.Album;
-import music.database.items.Song;
+import music.database.data.DataStorage;
+import music.database.data.items.SQLItem;
+import music.database.data.items.Album;
+import music.database.data.items.Song;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

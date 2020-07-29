@@ -1,12 +1,7 @@
-package music.database.items;
+package music.database.data.items;
 
-import music.database.DataStorage;
-import music.database.SQLItem;
+import music.database.data.DataStorage;
 
-import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.TreeSet;
 import java.util.Vector;
 
 public class Band extends ImageContainer {

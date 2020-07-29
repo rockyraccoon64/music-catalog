@@ -1,6 +1,6 @@
-package music.database;
+package music.database.gui.renderers;
 
-import music.database.items.Band;
+import music.database.data.items.Band;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -8,7 +8,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.Border;
 
 public class BandRenderer extends JLabel implements ListCellRenderer<Band> {
 

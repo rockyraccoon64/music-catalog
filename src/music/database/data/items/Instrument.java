@@ -1,6 +1,4 @@
-package music.database.items;
-
-import music.database.SQLItem;
+package music.database.data.items;
 
 public class Instrument extends DataItem implements Comparable<Instrument> {
     private String m_name;

@@ -1,6 +1,4 @@
-package music.database.items;
-
-import music.database.SQLItem;
+package music.database.data.items;
 
 public class Genre extends DataItem {
     private String m_name;

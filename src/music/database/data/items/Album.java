@@ -1,11 +1,9 @@
-package music.database.items;
+package music.database.data.items;
 
-import music.database.DataStorage;
-import music.database.SQLItem;
+import music.database.data.DataStorage;
 
 import java.lang.ref.WeakReference;
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.Vector;
 
 public class Album extends ImageContainer implements Comparable<Album> {

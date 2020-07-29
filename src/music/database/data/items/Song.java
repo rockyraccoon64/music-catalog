@@ -1,6 +1,4 @@
-package music.database.items;
-
-import music.database.SQLItem;
+package music.database.data.items;
 
 import java.lang.ref.WeakReference;
 

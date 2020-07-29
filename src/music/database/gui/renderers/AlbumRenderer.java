@@ -1,6 +1,6 @@
-package music.database;
+package music.database.gui.renderers;
 
-import music.database.items.Album;
+import music.database.data.items.Album;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.Border;
 
 public class AlbumRenderer implements ListCellRenderer<Album> {
 

@@ -1,4 +1,4 @@
-package music.database;
+package music.database.data.items;
 
 public enum SQLItem {
     BANDS,

@@ -1,11 +1,15 @@
-package music.database;
+package music.database.gui.dialogs;
 
+import music.database.data.DataStorage;
+import music.database.data.items.SQLItem;
 import music.database.fields.DateField;
 import music.database.fields.Field;
 import music.database.fields.FieldContainer;
 import music.database.fields.NStringField;
-import music.database.items.Band;
-import music.database.items.Musician;
+import music.database.data.items.Band;
+import music.database.data.items.Musician;
+import music.database.gui.renderers.DataItemComboBoxRenderer;
+import music.database.gui.MusicApp;
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,12 +28,10 @@ import java.util.Vector;
 public class MusicianEditDialog extends JDialog {
 
     private final JDialog OWNER;
-    private final MusicApp MAIN_WINDOW;
     private final int BAND_ID;
 
-    public MusicianEditDialog(MusicApp mainFrame, JDialog owner, int bandID) {
+    public MusicianEditDialog(JDialog owner, int bandID) {
         super(owner, "Редактировать музыканта");
-        MAIN_WINDOW = mainFrame;
         OWNER = owner;
         BAND_ID = bandID;
         refresh();
@@ -69,7 +71,7 @@ public class MusicianEditDialog extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Musician selectedMusician = musicians.get(musicianComboBox.getSelectedIndex());
-                new InstrumentConnectionDialog(MAIN_WINDOW, MusicianEditDialog.this, selectedMusician.getID());
+                new InstrumentConnectionDialog(MusicianEditDialog.this, selectedMusician.getID());
             }
         });
         c_instrPanel.gridx = 0;
@@ -192,7 +194,7 @@ public class MusicianEditDialog extends JDialog {
                         );
                         JOptionPane.showMessageDialog(MusicianEditDialog.this, "Данные обновлены.",
                                 "Обновление успешно", JOptionPane.INFORMATION_MESSAGE);
-                        MAIN_WINDOW.showBandPage(BAND_ID);
+                        MusicApp.MAIN_WINDOW.showBandPage(BAND_ID);
                         dispose();
                     }
                     catch (SQLException ex) {

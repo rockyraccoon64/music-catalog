@@ -1,8 +1,11 @@
-package music.database;
+package music.database.gui.dialogs;
 
+import music.database.data.DataStorage;
+import music.database.data.items.SQLItem;
 import music.database.fields.Field;
 import music.database.fields.FieldContainer;
 import music.database.fields.NStringField;
+import music.database.gui.MusicApp;
 
 import javax.swing.*;
 import java.awt.*;

@@ -1,6 +1,4 @@
-package music.database.items;
-
-import music.database.SQLItem;
+package music.database.data.items;
 
 public abstract class DataItem {
     protected final int m_ID;

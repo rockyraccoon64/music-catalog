@@ -1,11 +1,9 @@
-package music.database;
+package music.database.gui.renderers;
 
-import music.database.items.Album;
-import music.database.items.Song;
+import music.database.data.items.Song;
 
 import java.awt.*;
 import javax.swing.*;
-import javax.swing.border.Border;
 
 public class SongRenderer implements ListCellRenderer<Song> {
 

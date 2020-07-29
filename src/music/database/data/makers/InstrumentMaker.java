@@ -1,6 +1,6 @@
-package music.database.items.makers;
+package music.database.data.makers;
 
-import music.database.items.Instrument;
+import music.database.data.items.Instrument;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

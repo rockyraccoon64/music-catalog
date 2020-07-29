@@ -1,12 +1,11 @@
-package music.database;
+package music.database.gui.renderers;
 
-import music.database.items.Band;
-import music.database.items.DataItem;
+import music.database.data.items.DataItem;
 
 import javax.swing.*;
 import java.awt.*;
 
-class DataItemComboBoxRenderer extends JLabel implements ListCellRenderer<DataItem> {
+public class DataItemComboBoxRenderer extends JLabel implements ListCellRenderer<DataItem> {
 
     public DataItemComboBoxRenderer() {
         setOpaque(true);

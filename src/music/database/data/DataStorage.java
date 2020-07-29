@@ -1,7 +1,10 @@
-package music.database;
+package music.database.data;
 
-import music.database.items.*;
-import music.database.items.makers.DataItemMaker;
+import music.database.data.items.DataItem;
+import music.database.data.items.Instrument;
+import music.database.data.items.Musician;
+import music.database.data.items.SQLItem;
+import music.database.data.makers.DataItemMaker;
 import music.database.fields.Field;
 import music.database.fields.FieldContainer;
 

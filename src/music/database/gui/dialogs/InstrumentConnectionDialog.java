@@ -1,11 +1,15 @@
-package music.database;
+package music.database.gui.dialogs;
 
+import music.database.data.DataStorage;
+import music.database.data.items.SQLItem;
 import music.database.fields.Field;
 import music.database.fields.FieldContainer;
 import music.database.fields.IntField;
-import music.database.items.DataItem;
-import music.database.items.Instrument;
-import music.database.items.Musician;
+import music.database.data.items.DataItem;
+import music.database.data.items.Instrument;
+import music.database.data.items.Musician;
+import music.database.gui.renderers.DataItemComboBoxRenderer;
+import music.database.gui.MusicApp;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,13 +21,11 @@ import java.util.Vector;
 
 public class InstrumentConnectionDialog extends JDialog {
 
-    private final MusicApp MAIN_WINDOW;
     private final JDialog OWNER;
     private final int MUSICIAN_ID;
 
-    public InstrumentConnectionDialog(MusicApp mainWindow, JDialog owner, int musicianID) {
+    public InstrumentConnectionDialog(JDialog owner, int musicianID) {
         super(owner, "Добавить инструмент у музыканта");
-        MAIN_WINDOW = mainWindow;
         OWNER = owner;
         MUSICIAN_ID = musicianID;
 
@@ -95,7 +97,7 @@ public class InstrumentConnectionDialog extends JDialog {
                     JOptionPane.showMessageDialog(InstrumentConnectionDialog.this, "Инструмент добавлен.",
                             "Добавление успешно", JOptionPane.INFORMATION_MESSAGE);
                     Musician musician = (Musician) DataStorage.getItemByID(SQLItem.MUSICIANS, MUSICIAN_ID);
-                    MAIN_WINDOW.showBandPage(musician.getBand().getID());
+                    MusicApp.MAIN_WINDOW.showBandPage(musician.getBand().getID());
                     dispose();
                 }
                 catch (SQLException ex) {

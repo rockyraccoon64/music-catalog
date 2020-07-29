@@ -1,6 +1,6 @@
 package music.database.fields;
 
-import music.database.items.DataItem;
+import music.database.data.items.DataItem;
 
 import java.util.Vector;
 
