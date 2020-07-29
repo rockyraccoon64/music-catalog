@@ -4,7 +4,6 @@ import music.database.data.DataStorage;
 import music.database.data.items.SQLItem;
 import music.database.fields.Field;
 import music.database.fields.FieldContainer;
-import music.database.fields.IntField;
 import music.database.fields.NStringField;
 import music.database.gui.MusicApp;
 
@@ -13,7 +12,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.Vector;
 
 public class GenreAdditionDialog extends JDialog {

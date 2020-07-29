@@ -3,7 +3,6 @@ package music.database.gui.dialogs;
 import music.database.data.DataStorage;
 import music.database.data.items.DataItem;
 import music.database.data.items.Instrument;
-import music.database.data.items.Musician;
 import music.database.data.items.SQLItem;
 import music.database.fields.Field;
 import music.database.fields.FieldContainer;

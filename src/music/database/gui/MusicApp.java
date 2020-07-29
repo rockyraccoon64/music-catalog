@@ -101,7 +101,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         JPanel listPanel = new JPanel();
         listPanel.setLayout(new BorderLayout());
         listPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createEmptyBorder(0, 30, 30, 30),
+                BorderFactory.createEmptyBorder(0, 30, 0, 30),
                 BorderFactory.createLineBorder(Color.BLACK, 3)));
         listPanel.setOpaque(false);
 
@@ -193,7 +193,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         JPanel managementPanel = new JPanel(new GridBagLayout());
         managementPanel.setOpaque(false);
         GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(0, 5, 25, 5);
+        c.insets = new Insets(20, 5, 20, 5);
         c.fill = GridBagConstraints.HORIZONTAL;
 
         JButton bandAdditionButton = new JButton("Добавить группу...");
