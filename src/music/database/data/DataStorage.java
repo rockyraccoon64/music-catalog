@@ -23,9 +23,9 @@ public class DataStorage {
     private static Connection connection;
     private static Statement statement;
 
-    private static HashMap<SQLItem, TreeMap> MAPS = new HashMap<>();
+    private static final HashMap<SQLItem, TreeMap> MAPS = new HashMap<>();
     private static final HashMap<SQLItem, String> ITEM_NAMES = new HashMap<>();
-    private static HashMap<Integer, TreeSet<Integer>> MUSICIAN_INSTRUMENT_MAP = new HashMap<>();
+    private static final HashMap<Integer, TreeSet<Integer>> MUSICIAN_INSTRUMENT_MAP = new HashMap<>();
 
     public static void initialize() {
         initializeItemNames();
@@ -243,6 +243,7 @@ public class DataStorage {
     }
 
     private static void connectInstruments() throws SQLException {
+        MUSICIAN_INSTRUMENT_MAP.clear();
         ResultSet resultSet = null;
         try {
             statement = connection.createStatement();

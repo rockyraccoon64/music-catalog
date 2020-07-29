@@ -83,7 +83,7 @@ public class MusicianEditDialog extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Musician selectedMusician = musicians.get(musicianComboBox.getSelectedIndex());
-                // TODO showInstrumentDisconnectionDialog(dialog, selectedMusician.getID());
+                new InstrumentDisconnectionDialog(MusicianEditDialog.this, selectedMusician.getID());
             }
         });
         c_instrPanel.gridx = 1;
@@ -229,7 +229,7 @@ public class MusicianEditDialog extends JDialog {
             }
         });
 
-        setPreferredSize(new Dimension(430, 250));
+        setPreferredSize(new Dimension(470, 250));
         pack();
         setVisible(true);
     }

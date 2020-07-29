@@ -2,8 +2,8 @@ package music.database.gui.dialogs;
 
 import music.database.data.DataStorage;
 import music.database.data.items.Album;
+import music.database.data.items.Band;
 import music.database.data.items.SQLItem;
-import music.database.data.items.Song;
 import music.database.fields.Field;
 import music.database.fields.FieldContainer;
 import music.database.fields.IntField;
@@ -19,19 +19,20 @@ import java.util.Vector;
 
 import static music.database.gui.MusicApp.BACKGROUND_COLOR;
 
-public class SongRemovalDialog extends JDialog {
+public class AlbumRemovalDialog extends JDialog {
 
-    private final AlbumEditDialog OWNER;
-    private final int ALBUM_ID;
+    private final BandEditDialog OWNER;
+    private final int BAND_ID;
 
-    public SongRemovalDialog(AlbumEditDialog owner, int albumID) {
-        super(owner, "Удалить песню");
+    public AlbumRemovalDialog(BandEditDialog owner, int bandID) {
+        super(owner, "Удалить альбом");
         OWNER = owner;
-        ALBUM_ID = albumID;
+        BAND_ID = bandID;
         refresh();
     }
 
     public void refresh() {
+        Band band = (Band) DataStorage.getItemByID(SQLItem.BANDS, BAND_ID);
         Container contentPane = getContentPane();
         contentPane.removeAll();
         contentPane.setLayout(new GridBagLayout());
@@ -43,38 +44,37 @@ public class SongRemovalDialog extends JDialog {
 
         int currentY = 0;
 
-        JLabel songLabel = new JLabel("Выберите песню:");
-        songLabel.setOpaque(false);
+        JLabel nameLabel = new JLabel("Название:");
+        nameLabel.setOpaque(false);
         c.gridx = 0;
         c.gridy = currentY;
-        contentPane.add(songLabel, c);
+        contentPane.add(nameLabel, c);
 
-        Album album = (Album) DataStorage.getItemByID(SQLItem.ALBUMS, ALBUM_ID);
-        Vector<Song> songs = album.getSongs();
-        JComboBox<Song> songComboBox = new JComboBox<>(songs);
-        songComboBox.setBackground(Color.WHITE);
-        songComboBox.setRenderer(new DataItemComboBoxRenderer());
+        Vector<Album> albums = band.getAlbums();
+        JComboBox<Album> albumComboBox = new JComboBox<>(albums);
+        albumComboBox.setBackground(Color.WHITE);
+        albumComboBox.setRenderer(new DataItemComboBoxRenderer());
         c.gridx = 1;
         c.gridy = currentY;
-        contentPane.add(songComboBox, c);
+        contentPane.add(albumComboBox, c);
 
         currentY++;
 
-        JButton removeButton = new JButton("Удалить песню");
-        removeButton.addActionListener(new ActionListener() {
+        JButton confirmButton = new JButton("Удалить альбом");
+        confirmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
                     Vector<Field> fields = new Vector<>();
-                    fields.add(new IntField("ID", songs.get(songComboBox.getSelectedIndex()).getID()));
-                    DataStorage.delete(SQLItem.SONGS, new FieldContainer(null, fields));
-                    JOptionPane.showMessageDialog(SongRemovalDialog.this, "Песня удалена.",
+                    fields.add(new IntField("ID", albums.get(albumComboBox.getSelectedIndex()).getID()));
+                    DataStorage.delete(SQLItem.ALBUMS, new FieldContainer(null, fields));
+                    JOptionPane.showMessageDialog(AlbumRemovalDialog.this, "Альбом удалён.",
                             "Удаление успешно", JOptionPane.INFORMATION_MESSAGE);
-                    MusicApp.MAIN_WINDOW.showAlbumPage(album.getID());
+                    MusicApp.MAIN_WINDOW.showBandPage(BAND_ID);
                     dispose();
                 }
                 catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(SongRemovalDialog.this, "Удаление не удалось.",
+                    JOptionPane.showMessageDialog(AlbumRemovalDialog.this, "Удаление не удалось.",
                             "Ошибка при удалении", JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -82,9 +82,9 @@ public class SongRemovalDialog extends JDialog {
         c.gridx = 0;
         c.gridy = currentY;
         c.gridwidth = 2;
-        contentPane.add(removeButton, c);
+        contentPane.add(confirmButton, c);
 
-        setPreferredSize(new Dimension(400, 150));
+        setPreferredSize(new Dimension(430, 150));
         pack();
         setVisible(true);
     }

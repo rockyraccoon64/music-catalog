@@ -1,15 +1,15 @@
 package music.database.gui.dialogs;
 
 import music.database.data.DataStorage;
+import music.database.data.items.DataItem;
+import music.database.data.items.Instrument;
+import music.database.data.items.Musician;
 import music.database.data.items.SQLItem;
 import music.database.fields.Field;
 import music.database.fields.FieldContainer;
 import music.database.fields.IntField;
-import music.database.data.items.DataItem;
-import music.database.data.items.Instrument;
-import music.database.data.items.Musician;
-import music.database.gui.renderers.DataItemComboBoxRenderer;
 import music.database.gui.MusicApp;
+import music.database.gui.renderers.DataItemComboBoxRenderer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,16 +19,10 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Vector;
 
-public class InstrumentConnectionDialog extends JDialog {
+public class InstrumentRemovalDialog extends JDialog {
 
-    private final JDialog OWNER;
-    private final int MUSICIAN_ID;
-
-    public InstrumentConnectionDialog(JDialog owner, int musicianID) {
-        super(owner, "Добавить инструмент у музыканта");
-        OWNER = owner;
-        MUSICIAN_ID = musicianID;
-        refresh();
+    public InstrumentRemovalDialog() {
+        super(MusicApp.MAIN_WINDOW, "Удалить инструмент");
     }
 
     public void refresh() {
@@ -114,4 +108,5 @@ public class InstrumentConnectionDialog extends JDialog {
         pack();
         setVisible(true);
     }
+}
 }

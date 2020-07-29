@@ -1,7 +1,7 @@
 package music.database.gui.dialogs;
 
 import music.database.data.DataStorage;
-import music.database.data.items.Album;
+import music.database.data.items.Band;
 import music.database.data.items.SQLItem;
 import music.database.fields.Field;
 import music.database.fields.FieldContainer;
@@ -18,15 +18,15 @@ import java.util.Vector;
 
 import static music.database.gui.MusicApp.BACKGROUND_COLOR;
 
-public class SongAdditionDialog extends JDialog {
+public class MusicianAdditionDialog extends JDialog {
 
-    private final AlbumEditDialog OWNER;
-    private final int ALBUM_ID;
+    private final BandEditDialog OWNER;
+    private final int BAND_ID;
 
-    public SongAdditionDialog(AlbumEditDialog owner, int albumID) {
-        super(owner, "Добавить песню");
+    public MusicianAdditionDialog(BandEditDialog owner, int bandID) {
+        super(owner, "Добавить альбом");
         OWNER = owner;
-        ALBUM_ID = albumID;
+        BAND_ID = bandID;
         refresh();
     }
 
@@ -42,51 +42,37 @@ public class SongAdditionDialog extends JDialog {
 
         int currentY = 0;
 
-        JLabel nameLabel = new JLabel("Название:");
+        JLabel nameLabel = new JLabel("Имя:");
         nameLabel.setOpaque(false);
         c.gridx = 0;
         c.gridy = currentY;
         contentPane.add(nameLabel, c);
 
         JTextField nameText = new JTextField();
-        nameText.setPreferredSize(new Dimension(200, 20));
+        nameText.setPreferredSize(new Dimension(250, 20));
         c.gridx = 1;
         c.gridy = currentY;
         contentPane.add(nameText, c);
 
         currentY++;
 
-        JLabel trackNoLabel = new JLabel("Позиция в альбоме:");
-        c.gridx = 0;
-        c.gridy = currentY;
-        contentPane.add(trackNoLabel, c);
-
-        SpinnerNumberModel spinnerModel = new SpinnerNumberModel(1, 1, 1000, 1);
-        JSpinner trackNoSpinner = new JSpinner(spinnerModel);
-        c.gridx = 1;
-        c.gridy = currentY;
-        contentPane.add(trackNoSpinner, c);
-
-        currentY++;
-
-        JButton confirmButton = new JButton("Добавить");
+        JButton confirmButton = new JButton("Добавить музыканта");
         confirmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Vector<Field> fields = new Vector<>();
                 fields.add(new NStringField("Name", nameText.getText()));
-                fields.add(new IntField("Album", ALBUM_ID));
-                fields.add(new IntField("TrackNo", spinnerModel.getNumber().intValue()));
+                fields.add(new IntField("Band", BAND_ID));
 
                 try {
-                    DataStorage.insert(SQLItem.SONGS, new FieldContainer(null, fields));
-                    JOptionPane.showMessageDialog(SongAdditionDialog.this, "Песня добавлена.",
+                    DataStorage.insert(SQLItem.MUSICIANS, new FieldContainer(null, fields));
+                    JOptionPane.showMessageDialog(MusicianAdditionDialog.this, "Музыкант добавлен.",
                             "Добавление успешно", JOptionPane.INFORMATION_MESSAGE);
-                    MusicApp.MAIN_WINDOW.showAlbumPage(ALBUM_ID);
+                    MusicApp.MAIN_WINDOW.showBandPage(BAND_ID);
                     dispose();
                 }
                 catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(SongAdditionDialog.this, "Обновление не удалось.",
+                    JOptionPane.showMessageDialog(MusicianAdditionDialog.this, "Обновление не удалось.",
                             "Добавление не удалось", JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -96,7 +82,7 @@ public class SongAdditionDialog extends JDialog {
         c.gridwidth = 2;
         contentPane.add(confirmButton, c);
 
-        setPreferredSize(new Dimension(400, 150));
+        setPreferredSize(new Dimension(430, 150));
         pack();
         setVisible(true);
     }
