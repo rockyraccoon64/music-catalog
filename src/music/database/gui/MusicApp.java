@@ -262,11 +262,11 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
         JPanel infoPanel = new JPanel();
         infoPanel.setBackground(BACKGROUND_COLOR);
-        //infoPanel.setOpaque(false);
         infoPanel.setLayout(new GridBagLayout());
-        //infoPanel.setPreferredSize(new Dimension(INFO_PANEL_WIDTH, 900));
+        //infoPanel.setMinimumSize(new Dimension(INFO_PANEL_WIDTH, APP_HEIGHT));
 
         GridBagConstraints c_infoPanel = new GridBagConstraints();
+        c_infoPanel.insets = new Insets(5,5, 0, 5);
         int currentY = 0;
 
         m_imageLabel = new JLabel();
@@ -298,23 +298,11 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
             c_infoPanel.gridx = 0;
             c_infoPanel.gridy = currentY++;
             JLabel label = createMusicianLabel(musician);
-            //label.setPreferredSize(new Dimension(INFO_PANEL_WIDTH, 50));
             infoPanel.add(label, c_infoPanel);
         }
 
-        JButton editButton = new JButton("Редактировать...");
-        editButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new BandEditDialog(bandID);
-            }
-        });
-        c_infoPanel.gridx = 0;
-        c_infoPanel.gridy = currentY++;
-        infoPanel.add(editButton, c_infoPanel);
-
         JScrollPane infoScrollPane = new JScrollPane(infoPanel);
-        infoScrollPane.setPreferredSize(new Dimension(INFO_PANEL_WIDTH, APP_HEIGHT));
+        infoScrollPane.setPreferredSize(new Dimension(INFO_PANEL_WIDTH + 30, APP_HEIGHT));
         infoScrollPane.setOpaque(false);
         infoScrollPane.setBorder(BorderFactory.createEmptyBorder());
 
@@ -351,6 +339,21 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         c.gridx = 1;
         c.gridy = 1;
         add(listPanel, c);
+
+        JButton editButton = new JButton("Редактировать...");
+        editButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new BandEditDialog(bandID);
+            }
+        });
+
+        c.insets = new Insets(10, 0, 20, 0);
+        c.gridx = 0;
+        c.gridy = 2;
+        c.gridwidth = 2;
+        add(editButton, c);
+
         pack();
     }
 
@@ -494,13 +497,16 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
     }
 
     private static void setInfoPanelLabelStyle(JLabel label) {
-        String text = label.getText();
-        StringBuilder sb = new StringBuilder("<html>");
-        sb.append(text);
-        sb.append("</html>");
-        label.setText(sb.toString());
+//        String text = label.getText();
+//        StringBuilder sb = new StringBuilder("<html>");
+//        sb.append(text);
+//        sb.append("</html>");
+//        label.setText(sb.toString());
+        label.setHorizontalAlignment(SwingConstants.CENTER);
         label.setFont(new Font("Arial", Font.PLAIN, 15));
-        label.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
+        label.setPreferredSize(new Dimension(INFO_PANEL_WIDTH, 25));
+        label.setToolTipText(label.getText());
+        //label.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
     }
 
     private static JLabel createListLabel(String text) {
