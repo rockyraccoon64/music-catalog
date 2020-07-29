@@ -25,8 +25,8 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
     public static final Color BACKGROUND_COLOR = new Color(255, 244, 161);
     public static final MusicApp MAIN_WINDOW = new MusicApp();
-    private static final int APP_WIDTH = 1000;
-    private static final int APP_HEIGHT = 750;
+    private static final int APP_WIDTH = 900;
+    private static final int APP_HEIGHT = 550;
     private static final int INFO_PANEL_WIDTH = APP_WIDTH / 3;
     private static final int INFO_PANEL_BORDER = 30;
     private static byte[] IMAGE_PLACEHOLDER;
@@ -45,10 +45,11 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
     }
 
     public void showWindow() {
-        setLayout(new BorderLayout());
+        setLayout(new GridBagLayout());
 
         setTitle("Музыкальная база данных");
-        setPreferredSize(new Dimension(APP_WIDTH, APP_HEIGHT));
+        //setPreferredSize(new Dimension(APP_WIDTH, APP_HEIGHT));
+        setResizable(false);
         getContentPane().setBackground(BACKGROUND_COLOR);
 
         showBandList();
@@ -60,8 +61,17 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
     }
 
     private void showTopPanel(DataItem item) {
-        JPanel topPanel = new JPanel(new BorderLayout());
+        JPanel topPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints c_topPanel = new GridBagConstraints();
         topPanel.setOpaque(false);
+
+        JLabel mainLabel = new JLabel("Музыкальная база данных");
+        mainLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        mainLabel.setFont(new Font("Arial", Font.BOLD, 30));
+
+        c_topPanel.gridx = 0;
+        c_topPanel.gridy = 0;
+        topPanel.add(mainLabel, c_topPanel);
 
         if (item != null) {
             JPanel buttonPanel = new JPanel();
@@ -71,15 +81,20 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
             JButton backButton = new JButton("< назад");
             backButton.setPreferredSize(new Dimension(150, 20));
             buttonPanel.add(backButton);
-            topPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+            c_topPanel.gridx = 0;
+            c_topPanel.gridy = 1;
+            topPanel.add(buttonPanel, c_topPanel);
             backButton.addActionListener(new BackButtonListener(item));
         }
 
-        JLabel mainLabel = new JLabel("Музыкальная база данных");
-        mainLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        mainLabel.setFont(new Font("Arial", Font.BOLD, 30));
-        topPanel.add(mainLabel, BorderLayout.CENTER);
-        add(topPanel, BorderLayout.NORTH);
+        GridBagConstraints c = new GridBagConstraints();
+
+        c.gridx = 0;
+        c.gridy = 0;
+        if (item != null)
+            c.gridwidth = 2;
+        add(topPanel, c);
 
         mainLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
     }
@@ -188,13 +203,17 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         scrollPane.setPreferredSize(new Dimension(APP_WIDTH, APP_HEIGHT));
         listPanel.add(scrollPane);
 
-        add(listPanel, BorderLayout.CENTER);
+        GridBagConstraints c = new GridBagConstraints();
+
+        c.gridx = 0;
+        c.gridy = 1;
+        add(listPanel, c);
 
         JPanel managementPanel = new JPanel(new GridBagLayout());
         managementPanel.setOpaque(false);
-        GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(20, 5, 20, 5);
-        c.fill = GridBagConstraints.HORIZONTAL;
+        GridBagConstraints c_management = new GridBagConstraints();
+        c_management.insets = new Insets(20, 5, 20, 5);
+        c_management.fill = GridBagConstraints.HORIZONTAL;
 
         JButton bandAdditionButton = new JButton("Добавить группу...");
         bandAdditionButton.addActionListener(new ActionListener() {
@@ -203,9 +222,9 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
                 new BandAdditionDialog();
             }
         });
-        c.gridx = 0;
-        c.gridy = 0;
-        managementPanel.add(bandAdditionButton, c);
+        c_management.gridx = 0;
+        c_management.gridy = 0;
+        managementPanel.add(bandAdditionButton, c_management);
 
         JButton instrumentEditButton = new JButton("Редактировать инструменты...");
         instrumentEditButton.addActionListener(new ActionListener() {
@@ -214,9 +233,9 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
                 new InstrumentEditDialog();
             }
         });
-        c.gridx = 1;
-        c.gridy = 0;
-        managementPanel.add(instrumentEditButton, c);
+        c_management.gridx = 1;
+        c_management.gridy = 0;
+        managementPanel.add(instrumentEditButton, c_management);
 
         JButton genreEditButton = new JButton("Редактировать жанры...");
         genreEditButton.addActionListener(new ActionListener() {
@@ -225,27 +244,36 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
                 new GenreEditDialog();
             }
         });
-        c.gridx = 2;
-        c.gridy = 0;
-        managementPanel.add(genreEditButton, c);
+        c_management.gridx = 2;
+        c_management.gridy = 0;
+        managementPanel.add(genreEditButton, c_management);
 
-        add(managementPanel, BorderLayout.SOUTH);
+        c.gridx = 0;
+        c.gridy = 2;
+        add(managementPanel, c);
+        pack();
     }
 
     public void showBandPage(int bandID) {
         getContentPane().removeAll();
+        repaint();
         Band thisBand = (Band)DataStorage.getItemByID(SQLItem.BANDS, bandID);
         showTopPanel(thisBand);
 
         JPanel infoPanel = new JPanel();
-        infoPanel.setOpaque(false);
-        infoPanel.setLayout(new BoxLayout(infoPanel, Y_AXIS));
-        infoPanel.setPreferredSize(new Dimension(INFO_PANEL_WIDTH, APP_HEIGHT));
-        infoPanel.setBorder(BorderFactory.createEmptyBorder(0, INFO_PANEL_BORDER, INFO_PANEL_BORDER, 0));
+        infoPanel.setBackground(BACKGROUND_COLOR);
+        //infoPanel.setOpaque(false);
+        infoPanel.setLayout(new GridBagLayout());
+        //infoPanel.setPreferredSize(new Dimension(INFO_PANEL_WIDTH, 900));
+
+        GridBagConstraints c_infoPanel = new GridBagConstraints();
+        int currentY = 0;
 
         m_imageLabel = new JLabel();
-        refreshImage(thisBand.getImage(), m_imageLabel, INFO_PANEL_WIDTH - INFO_PANEL_BORDER);
-        infoPanel.add(m_imageLabel);
+        refreshImage(thisBand.getImage(), m_imageLabel, INFO_PANEL_WIDTH);
+        c_infoPanel.gridx = 0;
+        c_infoPanel.gridy = currentY++;
+        infoPanel.add(m_imageLabel, c_infoPanel);
 
         JLabel bandDateLabel = new JLabel();
         short formYear = thisBand.getFormYear();
@@ -261,13 +289,44 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         }
         bandDateLabel.setText(sb.toString());
         setInfoPanelLabelStyle(bandDateLabel);
-        infoPanel.add(bandDateLabel);
+        c_infoPanel.gridx = 0;
+        c_infoPanel.gridy = currentY++;
+        infoPanel.add(bandDateLabel, c_infoPanel);
 
         Vector<Musician> musicians = thisBand.getMusicians();
         for (Musician musician : musicians) {
-            infoPanel.add(createMusicianLabel(musician));
+            c_infoPanel.gridx = 0;
+            c_infoPanel.gridy = currentY++;
+            JLabel label = createMusicianLabel(musician);
+            //label.setPreferredSize(new Dimension(INFO_PANEL_WIDTH, 50));
+            infoPanel.add(label, c_infoPanel);
         }
-        add(infoPanel, BorderLayout.WEST);
+
+        JButton editButton = new JButton("Редактировать...");
+        editButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new BandEditDialog(bandID);
+            }
+        });
+        c_infoPanel.gridx = 0;
+        c_infoPanel.gridy = currentY++;
+        infoPanel.add(editButton, c_infoPanel);
+
+        JScrollPane infoScrollPane = new JScrollPane(infoPanel);
+        infoScrollPane.setPreferredSize(new Dimension(INFO_PANEL_WIDTH, APP_HEIGHT));
+        infoScrollPane.setOpaque(false);
+        infoScrollPane.setBorder(BorderFactory.createEmptyBorder());
+
+        JPanel scrollInfoPanel = new JPanel();
+        scrollInfoPanel.setOpaque(false);
+        scrollInfoPanel.add(infoScrollPane);
+
+        GridBagConstraints c = new GridBagConstraints();
+        c.insets = new Insets(0, 0, 10, 0);
+        c.gridx = 0;
+        c.gridy = 1;
+        add(scrollInfoPanel, c);
 
         DefaultListModel<Album> listModel = new DefaultListModel<>();
         Vector<Album> albums = thisBand.getAlbums();
@@ -289,16 +348,10 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         scrollPane.setPreferredSize(new Dimension(APP_WIDTH - INFO_PANEL_WIDTH, APP_HEIGHT));
         listPanel.add(scrollPane);
 
-        JButton editButton = new JButton("Редактировать...");
-        editButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new BandEditDialog(bandID);
-            }
-        });
-        infoPanel.add(editButton);
-
-        add(listPanel, BorderLayout.CENTER);
+        c.gridx = 1;
+        c.gridy = 1;
+        add(listPanel, c);
+        pack();
     }
 
     public void showAlbumPage(int albumID) {
@@ -307,11 +360,16 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         Band band = album.getBand();
         showTopPanel(album);
 
+        //JPanel scrollInfoPanel = new JPanel();
         JPanel infoPanel = new JPanel();
         infoPanel.setOpaque(false);
         infoPanel.setLayout(new BoxLayout(infoPanel, Y_AXIS));
         infoPanel.setPreferredSize(new Dimension(INFO_PANEL_WIDTH, APP_HEIGHT));
         infoPanel.setBorder(BorderFactory.createEmptyBorder(0, INFO_PANEL_BORDER, INFO_PANEL_BORDER, 0));
+
+        //JScrollPane infoScrollPane = new JScrollPane(infoPanel);
+        //infoScrollPane.setOpaque(false);
+        //scrollInfoPanel.add(infoScrollPane);
 
         m_imageLabel = new JLabel();
         refreshImage(album.getImage(), m_imageLabel, INFO_PANEL_WIDTH - INFO_PANEL_BORDER);
@@ -350,7 +408,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
         JScrollPane scrollPane = new JScrollPane(list);
         scrollPane.setOpaque(false);
-        scrollPane.setPreferredSize(new Dimension(APP_WIDTH - INFO_PANEL_WIDTH, APP_HEIGHT));
+        scrollPane.setPreferredSize(new Dimension(APP_WIDTH - INFO_PANEL_WIDTH, infoPanel.getHeight()));
         listPanel.add(scrollPane);
 
         JButton editButton = new JButton("Редактировать...");
