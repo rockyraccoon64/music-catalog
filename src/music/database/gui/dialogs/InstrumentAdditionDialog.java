@@ -16,8 +16,8 @@ import java.util.Vector;
 
 public class InstrumentAdditionDialog extends JDialog {
 
-    public InstrumentAdditionDialog(InstrumentConnectionDialog mainDialog) {
-        super(mainDialog, "Добавить инструмент");
+    public InstrumentAdditionDialog(InstrumentEditDialog owner) {
+        super(owner, "Добавить инструмент");
         Container contentPane = getContentPane();
         contentPane.setLayout(new GridBagLayout());
         contentPane.setBackground(MusicApp.BACKGROUND_COLOR);
@@ -53,7 +53,6 @@ public class InstrumentAdditionDialog extends JDialog {
                     DataStorage.insert(SQLItem.INSTRUMENTS, new FieldContainer(null, fields));
                     JOptionPane.showMessageDialog(InstrumentAdditionDialog.this, "Инструмент добавлен.",
                             "Добавление успешно", JOptionPane.INFORMATION_MESSAGE);
-                    mainDialog.refresh();
                     dispose();
                 }
                 catch (SQLException ex) {

@@ -189,6 +189,47 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         listPanel.add(scrollPane);
 
         add(listPanel, BorderLayout.CENTER);
+
+        JPanel managementPanel = new JPanel(new GridBagLayout());
+        managementPanel.setOpaque(false);
+        GridBagConstraints c = new GridBagConstraints();
+        c.insets = new Insets(5, 5, 5, 5);
+        c.fill = GridBagConstraints.HORIZONTAL;
+
+        JButton bandAdditionButton = new JButton("Добавить группу...");
+        bandAdditionButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //TODO
+            }
+        });
+        c.gridx = 0;
+        c.gridy = 0;
+        managementPanel.add(bandAdditionButton, c);
+
+        JButton instrumentEditButton = new JButton("Редактировать инструменты...");
+        instrumentEditButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new InstrumentEditDialog();
+            }
+        });
+        c.gridx = 1;
+        c.gridy = 0;
+        managementPanel.add(instrumentEditButton, c);
+
+        JButton genreEditButton = new JButton("Редактировать жанры...");
+        genreEditButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //TODO
+            }
+        });
+        c.gridx = 2;
+        c.gridy = 0;
+        managementPanel.add(genreEditButton, c);
+
+        add(managementPanel, BorderLayout.SOUTH);
     }
 
     public void showBandPage(int bandID) {
@@ -258,14 +299,6 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         infoPanel.add(editButton);
 
         add(listPanel, BorderLayout.CENTER);
-    }
-
-    private void showInstrumentRemovalDialog(JDialog mainDialog) {
-        //TODO
-    }
-
-    private void showBandAdditionDialog() {
-        //TODO
     }
 
     public void showAlbumPage(int albumID) {

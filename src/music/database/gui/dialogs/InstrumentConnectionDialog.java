@@ -43,21 +43,6 @@ public class InstrumentConnectionDialog extends JDialog {
 
         int currentY = 0;
 
-        JButton addNewInstrument = new JButton("Добавить новый инструмент");
-        addNewInstrument.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new InstrumentAdditionDialog(InstrumentConnectionDialog.this);
-            }
-        });
-        c.gridx = 0;
-        c.gridy = currentY;
-        c.gridwidth = 2;
-        contentPane.add(addNewInstrument, c);
-
-        currentY++;
-        c.gridwidth = 1;
-
         JLabel nameLabel = new JLabel("Инструмент:");
         nameLabel.setOpaque(false);
         c.gridx = 0;
@@ -110,7 +95,7 @@ public class InstrumentConnectionDialog extends JDialog {
         c.gridwidth = 2;
         contentPane.add(confirmButton, c);
 
-        setPreferredSize(new Dimension(430, 150));
+        setPreferredSize(new Dimension(430, 120));
         pack();
         setVisible(true);
     }

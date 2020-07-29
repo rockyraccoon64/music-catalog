@@ -21,8 +21,9 @@ import java.util.Vector;
 
 public class InstrumentRemovalDialog extends JDialog {
 
-    public InstrumentRemovalDialog() {
-        super(MusicApp.MAIN_WINDOW, "Удалить инструмент");
+    public InstrumentRemovalDialog(InstrumentEditDialog owner) {
+        super(owner, "Удалить инструмент");
+        refresh();
     }
 
     public void refresh() {
@@ -37,32 +38,19 @@ public class InstrumentRemovalDialog extends JDialog {
 
         int currentY = 0;
 
-        JButton addNewInstrument = new JButton("Добавить новый инструмент");
-        addNewInstrument.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new InstrumentAdditionDialog(InstrumentConnectionDialog.this);
-            }
-        });
-        c.gridx = 0;
-        c.gridy = currentY;
-        c.gridwidth = 2;
-        contentPane.add(addNewInstrument, c);
-
-        currentY++;
-        c.gridwidth = 1;
-
         JLabel nameLabel = new JLabel("Инструмент:");
         nameLabel.setOpaque(false);
         c.gridx = 0;
         c.gridy = currentY;
         contentPane.add(nameLabel, c);
 
-        Collection<DataItem> instrumentCollection = DataStorage.getItems(SQLItem.INSTRUMENTS);
         Vector<Instrument> instruments = new Vector<>();
+        Collection<DataItem> instrumentCollection = DataStorage.getItems(SQLItem.INSTRUMENTS);
+
         for (DataItem item : instrumentCollection) {
             instruments.add((Instrument)item);
         }
+
         JComboBox<Instrument> instrumentComboBox = new JComboBox<>(instruments);
         instrumentComboBox.setBackground(Color.WHITE);
         instrumentComboBox.setRenderer(new DataItemComboBoxRenderer());
@@ -72,30 +60,21 @@ public class InstrumentRemovalDialog extends JDialog {
 
         currentY++;
 
-        JButton confirmButton = new JButton("Присоединить инструмент");
+        JButton confirmButton = new JButton("Удалить инструмент");
         confirmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Vector<Field> fields = new Vector<>();
-                fields.add(new IntField("MusicianID", MUSICIAN_ID));
-                fields.add(
-                        new IntField(
-                                "InstrumentID",
-                                instruments.get(instrumentComboBox.getSelectedIndex()).getID()
-                        )
-                );
-
                 try {
-                    DataStorage.insert(SQLItem.MUSICIAN_INSTRUMENT, new FieldContainer(null, fields));
-                    JOptionPane.showMessageDialog(InstrumentConnectionDialog.this, "Инструмент добавлен.",
-                            "Добавление успешно", JOptionPane.INFORMATION_MESSAGE);
-                    Musician musician = (Musician) DataStorage.getItemByID(SQLItem.MUSICIANS, MUSICIAN_ID);
-                    MusicApp.MAIN_WINDOW.showBandPage(musician.getBand().getID());
+                    Vector<Field> fields = new Vector<>();
+                    fields.add(new IntField("ID", instruments.get(instrumentComboBox.getSelectedIndex()).getID()));
+                    DataStorage.delete(SQLItem.INSTRUMENTS, new FieldContainer(null, fields));
+                    JOptionPane.showMessageDialog(InstrumentRemovalDialog.this, "Инструмент удалён.",
+                            "Удаление успешно", JOptionPane.INFORMATION_MESSAGE);
                     dispose();
                 }
                 catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(InstrumentConnectionDialog.this, "Обновление не удалось.",
-                            "Добавление не удалось", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(InstrumentRemovalDialog.this, "Удаление не удалось.",
+                            "Ошибка при удалении", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -108,5 +87,4 @@ public class InstrumentRemovalDialog extends JDialog {
         pack();
         setVisible(true);
     }
-}
 }
