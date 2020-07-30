@@ -115,9 +115,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
     private JPanel createListPanel(String label) {
         JPanel listPanel = new JPanel();
         listPanel.setLayout(new BorderLayout());
-        listPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createEmptyBorder(0, 30, 0, 30),
-                BorderFactory.createLineBorder(Color.BLACK, 3)));
+        listPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 3));
         listPanel.setOpaque(false);
 
         JLabel bandLabel = createListLabel(label);
@@ -207,6 +205,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
         c.gridx = 0;
         c.gridy = 1;
+        c.insets = new Insets(0, 10, 0, 10);
         add(listPanel, c);
 
         JPanel managementPanel = new JPanel(new GridBagLayout());
@@ -256,7 +255,6 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
     public void showBandPage(int bandID) {
         getContentPane().removeAll();
-        repaint();
         Band thisBand = (Band)DataStorage.getItemByID(SQLItem.BANDS, bandID);
         showTopPanel(thisBand);
 
@@ -311,7 +309,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         scrollInfoPanel.add(infoScrollPane);
 
         GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(0, 0, 10, 0);
+        c.insets = new Insets(0, 10, 10, 10);
         c.gridx = 0;
         c.gridy = 1;
         add(scrollInfoPanel, c);
@@ -354,6 +352,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         c.gridwidth = 2;
         add(editButton, c);
 
+        repaint();
         pack();
     }
 
@@ -363,37 +362,42 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         Band band = album.getBand();
         showTopPanel(album);
 
-        //JPanel scrollInfoPanel = new JPanel();
         JPanel infoPanel = new JPanel();
         infoPanel.setOpaque(false);
-        infoPanel.setLayout(new BoxLayout(infoPanel, Y_AXIS));
-        infoPanel.setPreferredSize(new Dimension(INFO_PANEL_WIDTH, APP_HEIGHT));
-        infoPanel.setBorder(BorderFactory.createEmptyBorder(0, INFO_PANEL_BORDER, INFO_PANEL_BORDER, 0));
-
-        //JScrollPane infoScrollPane = new JScrollPane(infoPanel);
-        //infoScrollPane.setOpaque(false);
-        //scrollInfoPanel.add(infoScrollPane);
+        infoPanel.setLayout(new GridBagLayout());
 
         m_imageLabel = new JLabel();
-        refreshImage(album.getImage(), m_imageLabel, INFO_PANEL_WIDTH - INFO_PANEL_BORDER);
+        refreshImage(album.getImage(), m_imageLabel, INFO_PANEL_WIDTH);
 
-        infoPanel.add(m_imageLabel);
+        GridBagConstraints c_infoPanel = new GridBagConstraints();
+        c_infoPanel.gridx = 0;
+        c_infoPanel.gridy = 0;
+        infoPanel.add(m_imageLabel, c_infoPanel);
 
         Genre genre = album.getGenre();
         if (genre != null) {
             JLabel genreLabel = new JLabel("Жанр: " + album.getGenre().getName());
             setInfoPanelLabelStyle(genreLabel);
-            infoPanel.add(genreLabel);
+            c_infoPanel.gridx = 0;
+            c_infoPanel.gridy = 1;
+            infoPanel.add(genreLabel, c_infoPanel);
         }
 
         LocalDate releaseDate = album.getReleaseDate();
         if (releaseDate != null) {
             JLabel releaseDateLabel = new JLabel("Дата выпуска: " + releaseDate.toString());
             setInfoPanelLabelStyle(releaseDateLabel);
-            infoPanel.add(releaseDateLabel);
+            c_infoPanel.gridx = 0;
+            c_infoPanel.gridy = 2;
+            infoPanel.add(releaseDateLabel, c_infoPanel);
         }
 
-        add(infoPanel, BorderLayout.WEST);
+        GridBagConstraints c = new GridBagConstraints();
+        c.insets = new Insets(0, 10, 10, 10);
+        c.gridx = 0;
+        c.gridy = 1;
+        c.weightx = 1/3;
+        add(infoPanel, c);
 
         DefaultListModel<Song> listModel = new DefaultListModel<>();
         Vector<Song> songs = album.getSongs();
@@ -411,8 +415,13 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
         JScrollPane scrollPane = new JScrollPane(list);
         scrollPane.setOpaque(false);
-        scrollPane.setPreferredSize(new Dimension(APP_WIDTH - INFO_PANEL_WIDTH, infoPanel.getHeight()));
+        scrollPane.setPreferredSize(new Dimension(APP_WIDTH - INFO_PANEL_WIDTH, APP_HEIGHT));
         listPanel.add(scrollPane);
+
+        c.gridx = 1;
+        c.gridy = 1;
+        c.weightx = 2/3;
+        add(listPanel, c);
 
         JButton editButton = new JButton("Редактировать...");
         editButton.addActionListener(new ActionListener() {
@@ -421,9 +430,15 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
                 new AlbumEditDialog(albumID);
             }
         });
-        infoPanel.add(editButton);
+        c.gridx = 0;
+        c.gridy = 2;
+        c.gridwidth = 2;
+        c.weightx = 1;
+        c.insets = new Insets(10, 0, 20, 0);
+        add(editButton, c);
 
-        add(listPanel, BorderLayout.CENTER);
+        repaint();
+        pack();
     }
 
     public static void refreshImage(byte[] bytes, JLabel imageLabel, int maxDimension) {
@@ -497,16 +512,10 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
     }
 
     private static void setInfoPanelLabelStyle(JLabel label) {
-//        String text = label.getText();
-//        StringBuilder sb = new StringBuilder("<html>");
-//        sb.append(text);
-//        sb.append("</html>");
-//        label.setText(sb.toString());
         label.setHorizontalAlignment(SwingConstants.CENTER);
         label.setFont(new Font("Arial", Font.PLAIN, 15));
         label.setPreferredSize(new Dimension(INFO_PANEL_WIDTH, 25));
         label.setToolTipText(label.getText());
-        //label.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
     }
 
     private static JLabel createListLabel(String text) {
