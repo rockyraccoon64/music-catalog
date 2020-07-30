@@ -281,6 +281,7 @@ public class BandEditDialog extends JDialog {
 
         setPreferredSize(new Dimension(430, 375));
         pack();
+        setLocationRelativeTo(MusicApp.MAIN_WINDOW);
         setVisible(true);
     }
 }

@@ -97,6 +97,7 @@ public class InstrumentConnectionDialog extends JDialog {
 
         setPreferredSize(new Dimension(430, 120));
         pack();
+        setLocationRelativeTo(getOwner());
         setVisible(true);
     }
 }

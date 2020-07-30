@@ -50,6 +50,7 @@ public class GenreEditDialog extends JDialog {
 
         setPreferredSize(new Dimension(430, 100));
         pack();
+        setLocationRelativeTo(getOwner());
         setVisible(true);
     }
 }

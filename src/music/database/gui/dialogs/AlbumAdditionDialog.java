@@ -82,6 +82,7 @@ public class AlbumAdditionDialog extends JDialog {
 
         setPreferredSize(new Dimension(430, 150));
         pack();
+        setLocationRelativeTo(OWNER);
         setVisible(true);
     }
 }

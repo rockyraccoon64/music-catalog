@@ -94,6 +94,7 @@ public class BandAdditionDialog extends JDialog {
 
         setPreferredSize(new Dimension(430, 150));
         pack();
+        setLocationRelativeTo(getOwner());
         setVisible(true);
     }
 }

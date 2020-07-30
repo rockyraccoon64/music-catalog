@@ -283,6 +283,7 @@ public class AlbumEditDialog extends JDialog {
 
         setPreferredSize(new Dimension(430, 350));
         pack();
+        setLocationRelativeTo(MusicApp.MAIN_WINDOW);
         setVisible(true);
     }
 }

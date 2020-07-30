@@ -86,6 +86,7 @@ public class SongRemovalDialog extends JDialog {
 
         setPreferredSize(new Dimension(400, 150));
         pack();
+        setLocationRelativeTo(getOwner());
         setVisible(true);
     }
 }

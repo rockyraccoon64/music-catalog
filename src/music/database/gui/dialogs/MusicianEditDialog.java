@@ -231,6 +231,7 @@ public class MusicianEditDialog extends JDialog {
 
         setPreferredSize(new Dimension(470, 250));
         pack();
+        setLocationRelativeTo(getOwner());
         setVisible(true);
     }
 }
