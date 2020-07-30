@@ -19,15 +19,15 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
 
-import static javax.swing.BoxLayout.Y_AXIS;
-
 public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
     public static final Color BACKGROUND_COLOR = new Color(255, 244, 161);
     public static final MusicApp MAIN_WINDOW = new MusicApp();
-    private static final int APP_WIDTH = 900;
-    private static final int APP_HEIGHT = 550;
-    private static final int INFO_PANEL_WIDTH = APP_WIDTH / 3;
+    private static final int CONTENT_WIDTH = 900;
+    private static final int CONTENT_HEIGHT = 550;
+    private static final int APP_WIDTH = CONTENT_WIDTH + 150;
+    private static final int APP_HEIGHT = CONTENT_HEIGHT + 250;
+    private static final int INFO_PANEL_WIDTH = CONTENT_WIDTH / 3;
     private static final int INFO_PANEL_BORDER = 30;
     private static byte[] IMAGE_PLACEHOLDER;
     private JLabel m_imageLabel;
@@ -48,7 +48,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         setLayout(new GridBagLayout());
 
         setTitle("Музыкальная база данных");
-        //setPreferredSize(new Dimension(APP_WIDTH, APP_HEIGHT));
+        setPreferredSize(new Dimension(APP_WIDTH, APP_HEIGHT));
         setResizable(false);
         getContentPane().setBackground(BACKGROUND_COLOR);
 
@@ -198,7 +198,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
         JScrollPane scrollPane = new JScrollPane(list);
         scrollPane.setOpaque(false);
-        scrollPane.setPreferredSize(new Dimension(APP_WIDTH, APP_HEIGHT));
+        scrollPane.setPreferredSize(new Dimension(CONTENT_WIDTH, CONTENT_HEIGHT));
         listPanel.add(scrollPane);
 
         GridBagConstraints c = new GridBagConstraints();
@@ -250,6 +250,8 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         c.gridx = 0;
         c.gridy = 2;
         add(managementPanel, c);
+
+        repaint();
         pack();
     }
 
@@ -261,7 +263,6 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         JPanel infoPanel = new JPanel();
         infoPanel.setBackground(BACKGROUND_COLOR);
         infoPanel.setLayout(new GridBagLayout());
-        //infoPanel.setMinimumSize(new Dimension(INFO_PANEL_WIDTH, APP_HEIGHT));
 
         GridBagConstraints c_infoPanel = new GridBagConstraints();
         c_infoPanel.insets = new Insets(5,5, 0, 5);
@@ -300,7 +301,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         }
 
         JScrollPane infoScrollPane = new JScrollPane(infoPanel);
-        infoScrollPane.setPreferredSize(new Dimension(INFO_PANEL_WIDTH + 30, APP_HEIGHT));
+        infoScrollPane.setPreferredSize(new Dimension(INFO_PANEL_WIDTH + 30, CONTENT_HEIGHT));
         infoScrollPane.setOpaque(false);
         infoScrollPane.setBorder(BorderFactory.createEmptyBorder());
 
@@ -312,6 +313,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         c.insets = new Insets(0, 10, 10, 10);
         c.gridx = 0;
         c.gridy = 1;
+        c.weightx = 1/3;
         add(scrollInfoPanel, c);
 
         DefaultListModel<Album> listModel = new DefaultListModel<>();
@@ -331,11 +333,12 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
         JScrollPane scrollPane = new JScrollPane(list);
         scrollPane.setOpaque(false);
-        scrollPane.setPreferredSize(new Dimension(APP_WIDTH - INFO_PANEL_WIDTH, APP_HEIGHT));
+        scrollPane.setPreferredSize(new Dimension(CONTENT_WIDTH - INFO_PANEL_WIDTH, CONTENT_HEIGHT));
         listPanel.add(scrollPane);
 
         c.gridx = 1;
         c.gridy = 1;
+        c.weightx = 2/3;
         add(listPanel, c);
 
         JButton editButton = new JButton("Редактировать...");
@@ -363,6 +366,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         showTopPanel(album);
 
         JPanel infoPanel = new JPanel();
+        infoPanel.setPreferredSize(new Dimension(INFO_PANEL_WIDTH + 30, CONTENT_HEIGHT));
         infoPanel.setOpaque(false);
         infoPanel.setLayout(new GridBagLayout());
 
@@ -370,6 +374,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         refreshImage(album.getImage(), m_imageLabel, INFO_PANEL_WIDTH);
 
         GridBagConstraints c_infoPanel = new GridBagConstraints();
+        c_infoPanel.insets = new Insets(5,5, 0, 5);
         c_infoPanel.gridx = 0;
         c_infoPanel.gridy = 0;
         infoPanel.add(m_imageLabel, c_infoPanel);
@@ -393,7 +398,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         }
 
         GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(0, 10, 10, 10);
+        c.insets = new Insets(0, 40, 10, 0);
         c.gridx = 0;
         c.gridy = 1;
         c.weightx = 1/3;
@@ -415,9 +420,10 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
 
         JScrollPane scrollPane = new JScrollPane(list);
         scrollPane.setOpaque(false);
-        scrollPane.setPreferredSize(new Dimension(APP_WIDTH - INFO_PANEL_WIDTH, APP_HEIGHT));
+        scrollPane.setPreferredSize(new Dimension(CONTENT_WIDTH - INFO_PANEL_WIDTH, CONTENT_HEIGHT));
         listPanel.add(scrollPane);
 
+        c.insets = new Insets(0, 0, 10, 10);
         c.gridx = 1;
         c.gridy = 1;
         c.weightx = 2/3;
