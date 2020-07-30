@@ -57,6 +57,7 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         addWindowListener(this);
 
         pack();
+        setLocationRelativeTo(getOwner());
         setVisible(true);
     }
 
