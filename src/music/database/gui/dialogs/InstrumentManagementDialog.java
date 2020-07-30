@@ -7,10 +7,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class GenreEditDialog extends JDialog {
+public class InstrumentManagementDialog extends JDialog {
 
-    public GenreEditDialog() {
-        super(MusicApp.MAIN_WINDOW, "Редактировать жанры");
+    public InstrumentManagementDialog() {
+        super(MusicApp.MAIN_WINDOW, "Управление инструментами");
         refresh();
     }
 
@@ -26,27 +26,27 @@ public class GenreEditDialog extends JDialog {
 
         int currentY = 0;
 
-        JButton addNewGenre = new JButton("Добавить новый жанр...");
-        addNewGenre.addActionListener(new ActionListener() {
+        JButton addNewInstrument = new JButton("Добавить новый инструмент...");
+        addNewInstrument.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new GenreAdditionDialog(GenreEditDialog.this);
+                new InstrumentAdditionDialog(InstrumentManagementDialog.this);
             }
         });
         c.gridx = 0;
         c.gridy = currentY;
-        contentPane.add(addNewGenre, c);
+        contentPane.add(addNewInstrument, c);
 
-        JButton removeGenre = new JButton("Удалить жанр...");
-        removeGenre.addActionListener(new ActionListener() {
+        JButton removeInstrument = new JButton("Удалить инструмент...");
+        removeInstrument.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new GenreRemovalDialog(GenreEditDialog.this);
+                new InstrumentRemovalDialog(InstrumentManagementDialog.this);
             }
         });
         c.gridx = 1;
         c.gridy = currentY;
-        contentPane.add(removeGenre, c);
+        contentPane.add(removeInstrument, c);
 
         setPreferredSize(new Dimension(430, 100));
         pack();

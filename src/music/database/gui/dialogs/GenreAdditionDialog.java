@@ -16,7 +16,7 @@ import java.util.Vector;
 
 public class GenreAdditionDialog extends JDialog {
 
-    public GenreAdditionDialog(GenreEditDialog owner) {
+    public GenreAdditionDialog(GenreManagementDialog owner) {
         super(owner, "Добавить жанр");
         refresh();
     }

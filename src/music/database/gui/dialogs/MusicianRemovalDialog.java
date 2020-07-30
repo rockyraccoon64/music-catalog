@@ -25,7 +25,7 @@ public class MusicianRemovalDialog extends JDialog {
     private final int BAND_ID;
 
     public MusicianRemovalDialog(BandEditDialog owner, int bandID) {
-        super(owner, "Удалить альбом");
+        super(owner, "Удалить музыканта");
         OWNER = owner;
         BAND_ID = bandID;
         refresh();

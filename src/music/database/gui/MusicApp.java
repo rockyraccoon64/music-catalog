@@ -215,33 +215,33 @@ public class MusicApp extends JFrame implements WindowListener, ActionListener {
         c_management.insets = new Insets(20, 5, 20, 5);
         c_management.fill = GridBagConstraints.HORIZONTAL;
 
-        JButton bandAdditionButton = new JButton("Добавить группу...");
+        JButton bandAdditionButton = new JButton("Управление группами");
         bandAdditionButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new BandAdditionDialog();
+                new BandManagementDialog();
             }
         });
         c_management.gridx = 0;
         c_management.gridy = 0;
         managementPanel.add(bandAdditionButton, c_management);
 
-        JButton instrumentEditButton = new JButton("Редактировать инструменты...");
+        JButton instrumentEditButton = new JButton("Управление инструментами");
         instrumentEditButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new InstrumentEditDialog();
+                new InstrumentManagementDialog();
             }
         });
         c_management.gridx = 1;
         c_management.gridy = 0;
         managementPanel.add(instrumentEditButton, c_management);
 
-        JButton genreEditButton = new JButton("Редактировать жанры...");
+        JButton genreEditButton = new JButton("Управление жанрами");
         genreEditButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new GenreEditDialog();
+                new GenreManagementDialog();
             }
         });
         c_management.gridx = 2;

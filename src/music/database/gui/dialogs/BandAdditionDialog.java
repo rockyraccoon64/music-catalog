@@ -18,8 +18,8 @@ import java.util.Vector;
 
 public class BandAdditionDialog extends JDialog {
 
-    public BandAdditionDialog() {
-        super(MusicApp.MAIN_WINDOW, "Добавить группу");
+    public BandAdditionDialog(BandManagementDialog owner) {
+        super(owner, "Добавить группу");
         refresh();
     }
 

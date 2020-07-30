@@ -16,7 +16,7 @@ import java.util.Vector;
 
 public class InstrumentAdditionDialog extends JDialog {
 
-    public InstrumentAdditionDialog(InstrumentEditDialog owner) {
+    public InstrumentAdditionDialog(InstrumentManagementDialog owner) {
         super(owner, "Добавить инструмент");
         Container contentPane = getContentPane();
         contentPane.setLayout(new GridBagLayout());

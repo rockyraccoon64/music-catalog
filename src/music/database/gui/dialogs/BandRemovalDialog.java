@@ -1,6 +1,7 @@
 package music.database.gui.dialogs;
 
 import music.database.data.DataStorage;
+import music.database.data.items.Band;
 import music.database.data.items.DataItem;
 import music.database.data.items.Genre;
 import music.database.data.items.SQLItem;
@@ -18,10 +19,10 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Vector;
 
-public class GenreRemovalDialog extends JDialog {
+public class BandRemovalDialog extends JDialog {
 
-    public GenreRemovalDialog(GenreManagementDialog owner) {
-        super(owner, "Удалить жанр");
+    public BandRemovalDialog(BandManagementDialog owner) {
+        super(owner, "Удалить группу");
         refresh();
     }
 
@@ -37,42 +38,43 @@ public class GenreRemovalDialog extends JDialog {
 
         int currentY = 0;
 
-        JLabel nameLabel = new JLabel("Жанр:");
+        JLabel nameLabel = new JLabel("Группа:");
         nameLabel.setOpaque(false);
         c.gridx = 0;
         c.gridy = currentY;
         contentPane.add(nameLabel, c);
 
-        Vector<Genre> genres = new Vector<>();
-        Collection<DataItem> genreCollection = DataStorage.getItems(SQLItem.GENRES);
+        Vector<Band> bands = new Vector<>();
+        Collection<DataItem> bandCollection = DataStorage.getItems(SQLItem.BANDS);
 
-        for (DataItem item : genreCollection) {
-            genres.add((Genre)item);
+        for (DataItem item : bandCollection) {
+            bands.add((Band)item);
         }
 
-        JComboBox<Genre> genreComboBox = new JComboBox<>(genres);
-        genreComboBox.setBackground(Color.WHITE);
-        genreComboBox.setRenderer(new DataItemComboBoxRenderer());
+        JComboBox<Band> bandComboBox = new JComboBox<>(bands);
+        bandComboBox.setBackground(Color.WHITE);
+        bandComboBox.setRenderer(new DataItemComboBoxRenderer());
         c.gridx = 1;
         c.gridy = currentY;
-        contentPane.add(genreComboBox, c);
+        contentPane.add(bandComboBox, c);
 
         currentY++;
 
-        JButton confirmButton = new JButton("Удалить жанр");
+        JButton confirmButton = new JButton("Удалить группу");
         confirmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
                     Vector<Field> fields = new Vector<>();
-                    fields.add(new IntField("ID", genres.get(genreComboBox.getSelectedIndex()).getID()));
-                    DataStorage.delete(SQLItem.GENRES, new FieldContainer(null, fields));
-                    JOptionPane.showMessageDialog(GenreRemovalDialog.this, "Жанр удалён.",
+                    fields.add(new IntField("ID", bands.get(bandComboBox.getSelectedIndex()).getID()));
+                    DataStorage.delete(SQLItem.BANDS, new FieldContainer(null, fields));
+                    JOptionPane.showMessageDialog(BandRemovalDialog.this, "Группа удалена.",
                             "Удаление успешно", JOptionPane.INFORMATION_MESSAGE);
+                    MusicApp.MAIN_WINDOW.showBandList();
                     dispose();
                 }
                 catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(GenreRemovalDialog.this, "Удаление не удалось.",
+                    JOptionPane.showMessageDialog(BandRemovalDialog.this, "Удаление не удалось.",
                             "Ошибка при удалении", JOptionPane.ERROR_MESSAGE);
                 }
             }

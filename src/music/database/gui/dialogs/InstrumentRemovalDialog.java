@@ -20,7 +20,7 @@ import java.util.Vector;
 
 public class InstrumentRemovalDialog extends JDialog {
 
-    public InstrumentRemovalDialog(InstrumentEditDialog owner) {
+    public InstrumentRemovalDialog(InstrumentManagementDialog owner) {
         super(owner, "Удалить инструмент");
         refresh();
     }

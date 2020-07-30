@@ -24,7 +24,7 @@ public class MusicianAdditionDialog extends JDialog {
     private final int BAND_ID;
 
     public MusicianAdditionDialog(BandEditDialog owner, int bandID) {
-        super(owner, "Добавить альбом");
+        super(owner, "Добавить музыканта");
         OWNER = owner;
         BAND_ID = bandID;
         refresh();
